@@ -1,7 +1,13 @@
 import org.java_websocket.client.WebSocketClient
+import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import java.util.*
+import org.apache.commons.io.*
+import java.io.InputStream
+import java.io.Reader
+import java.net.URL
+import java.net.URLConnection
 
 fun print(inp : Any){
     println(inp)
@@ -9,6 +15,7 @@ fun print(inp : Any){
 
 fun main(args: Array<String>) {
     //times(5, ::print)
+    //WSinst.connect()
     inpThr.run()
 
 }
@@ -41,12 +48,12 @@ data class Rescue(val client : User, var clientSystem : System, val language : S
 
 }
 
-class WebSocket(serverUri: URI?) : WebSocketClient(serverUri) {
+class WebSocket(serverUri: URI?, httpHeaders : Map<String, String>) : WebSocketClient(serverUri, Draft_6455(), httpHeaders, 10) {
     var errorCount: Int = 0
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
         errorCount++
         println(reason)
-        if (errorCount <= 5) connect()
+        //if (errorCount <= 5) connect()
     }
 
     override fun onMessage(message: String?) {
@@ -54,8 +61,9 @@ class WebSocket(serverUri: URI?) : WebSocketClient(serverUri) {
         handleWS(message)
     }
 
-    override fun onError(ex: Exception?) {
-        println(ex.toString())
+    override fun onError(ex: Exception) {
+        //println(ex.toString())
+        ex.printStackTrace()
         if (errorCount > 5) {
             close()
             throw Exception("More than 5 errors occured", ex)
@@ -67,7 +75,21 @@ class WebSocket(serverUri: URI?) : WebSocketClient(serverUri) {
         //throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
+class WebAPI(){
 
-var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"))
+    fun getResponse(urlconnection : URLConnection) : MutableList<String>{
+        return IOUtils.readLines(urlconnection.getInputStream(), urlconnection.contentEncoding) as MutableList<String>
+    }
+
+    fun request(urlToPage : String) : MutableList<String>{
+        val urlconnection = URL(urlToPage).openConnection()
+        urlconnection.setRequestProperty("Authorization", "Bearer " + AuthToken)
+        urlconnection.connect()
+        return getResponse(urlconnection)
+    }
+
+}
+
+var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"), emptyMap())
 
 

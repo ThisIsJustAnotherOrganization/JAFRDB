@@ -5,16 +5,31 @@ fun handleWS(msg: String): Unit {
 }
 
 val inpThr : Thread = Thread(fun (){
-    println("triggered")
-    var line : String
-    //while (readLine().isNullOrBlank()){}
-    if (readLine().isNullOrBlank()) return
-    line = readLine()!!
-    if (line == "exit"){ exitProcess(0)}
-    println("connecting")
-    if (WSinst.isClosed) {println("connecting");WSinst.connect();}
-    while (!WSinst.isOpen){}
-    println("trying to send")
-    WSinst.send(line)
-    println("sent: " + line)
+    while (true) {
+        println("triggered")
+        var line: String?
+        line = readLine()
+        //while (readLine().isNullOrBlank()){}
+        if (line.isNullOrBlank()) continue
+        line = line!!
+
+        println("line is: " + line)
+        if (line == "exit") {
+            exitProcess(-1)
+        }
+
+       // if (WSinst.isClosed) {
+            println("connecting")
+            assert(WSinst.connectBlocking())
+        //}
+        if (WSinst.isClosed) {
+            println("still closed")
+           // exitProcess(-1)
+        }
+        println("waiting for connected")
+        while (/*WSinst.isConnecting || */!WSinst.isClosed) {}
+        println("Connected. trying to send")
+        WSinst.send(line)
+        println("sent: " + line)
+    }
 })
