@@ -17,19 +17,24 @@ val inpThr : Thread = Thread(fun (){
         if (line == "exit") {
             exitProcess(-1)
         }
-
+ /*//Websocket
        // if (WSinst.isClosed) {
             println("connecting")
             assert(WSinst.connectBlocking())
         //}
         if (WSinst.isClosed) {
             println("still closed")
-           // exitProcess(-1)
+            exitProcess(-1)
         }
         println("waiting for connected")
-        while (/*WSinst.isConnecting || */!WSinst.isClosed) {}
+*//* //       while (WSinst.isConnecting || !WSinst.isClosed) {}
         println("Connected. trying to send")
         WSinst.send(line)
         println("sent: " + line)
+        */
+
+        //WebAPi
+        var response = WAPIinst.request("https://api.fuelrats.com/" + line)
+        for (str in response){println(str)}
     }
 })

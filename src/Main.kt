@@ -1,17 +1,11 @@
+import org.apache.commons.io.IOUtils
 import org.java_websocket.client.WebSocketClient
-import org.java_websocket.drafts.Draft_6455
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
-import java.util.*
-import org.apache.commons.io.*
-import java.io.InputStream
-import java.io.Reader
 import java.net.URL
 import java.net.URLConnection
+import java.util.*
 
-fun print(inp : Any){
-    println(inp)
-}
 
 fun main(args: Array<String>) {
     //times(5, ::print)
@@ -47,8 +41,8 @@ data class Rescue(val client : User, var clientSystem : System, val language : S
     var rats : MutableList<User> = ArrayList()
 
 }
-
-class WebSocket(serverUri: URI?, httpHeaders : Map<String, String>) : WebSocketClient(serverUri, Draft_6455(), httpHeaders, 10) {
+var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"), emptyMap())
+class WebSocket(serverUri: URI?, httpHeaders : Map<String, String>) : WebSocketClient(serverUri) {
     var errorCount: Int = 0
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
         errorCount++
@@ -75,9 +69,11 @@ class WebSocket(serverUri: URI?, httpHeaders : Map<String, String>) : WebSocketC
         //throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
-class WebAPI(){
 
-    fun getResponse(urlconnection : URLConnection) : MutableList<String>{
+var WAPIinst = WebAPI()
+class WebAPI{ //rescue offset is 13764
+
+    private fun getResponse(urlconnection : URLConnection) : MutableList<String>{
         return IOUtils.readLines(urlconnection.getInputStream(), urlconnection.contentEncoding) as MutableList<String>
     }
 
@@ -89,7 +85,5 @@ class WebAPI(){
     }
 
 }
-
-var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"), emptyMap())
 
 
