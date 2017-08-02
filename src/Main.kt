@@ -10,7 +10,13 @@ import java.util.*
 fun main(args: Array<String>) {
     //times(5, ::print)
     //WSinst.connect()
+    initConfig()
+    readConfig()
+    saveConfig()
+
+    //always last call
     inpThr.run()
+
 
 }
 
@@ -79,9 +85,10 @@ class WebAPI{ //rescue offset is 13764
 
     fun request(urlToPage : String) : MutableList<String>{
         val urlconnection = URL(urlToPage).openConnection()
-        urlconnection.setRequestProperty("Authorization", "Bearer " + AuthToken)
+        urlconnection.setRequestProperty("Authorization", "Bearer " + config.authkey)
         urlconnection.connect()
         return getResponse(urlconnection)
+
     }
 
 }
