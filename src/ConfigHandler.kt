@@ -7,6 +7,7 @@ val config = Config()
 class Config{
     var authkey : String = ""
     var LogPath : String = ""
+    var ClientType : String = ""
 
 }
 
@@ -21,6 +22,8 @@ fun readConfig(){
             config.authkey = str.trim().toLowerCase().split("authkey: ")[1]}
         if (str.trim().toLowerCase().startsWith("logpath: ")){
             config.LogPath = str.trim().toLowerCase().split("logpath: ")[1]}
+        if (str.trim().toLowerCase().startsWith("cleinttype: ")){
+            config.ClientType = str.trim().toLowerCase().split("clienttype: ")[1]}
     }
 }
 
@@ -28,8 +31,9 @@ fun saveConfig(){
     PrintWriter(configFile.path).close()
     val tmp = ArrayList<String>()
     val stream = configFile.outputStream()
-    tmp.add("authkey: "+ config.authkey)
-    tmp.add("logpath: "+ config.LogPath)
+    tmp.add("authkey: " + config.authkey)
+    tmp.add("logpath: " + config.LogPath)
+    tmp.add("clienttype: " + config.ClientType)
     IOUtils.writeLines(tmp, null, stream)
     stream.flush()
     stream.close()

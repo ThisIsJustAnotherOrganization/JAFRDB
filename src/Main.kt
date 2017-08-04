@@ -1,3 +1,7 @@
+import com.diogonunes.jcdp.color.ColoredPrinter
+import com.diogonunes.jcdp.color.api.Ansi
+import jcurses.system.CharColor
+import jcurses.system.Toolkit
 import org.apache.commons.io.IOUtils
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -13,13 +17,18 @@ fun main(args: Array<String>) {
     initConfig()
     readConfig()
     saveConfig()
+    //CP.debugPrintln("This is a test", Ansi.Attribute.NONE, Ansi.FColor.YELLOW, Ansi.BColor.BLUE)
+    //CP.clear()
+    Toolkit.init()
+    Toolkit.clearScreen(CharColor(CharColor.BLACK, CharColor.WHITE))
+    Toolkit.printString("Welcome to JAFRDB", Toolkit.getScreenWidth() / 2 - 17 /* welcome string length*/, 0, color)
 
     //always last call
     inpThr.run()
 
 
 }
-
+val color = CharColor(CharColor.BLACK, CharColor.WHITE)
 fun times(i : Int, function: (i : Int) -> Unit){
     var x : Int = 0
     while (x < i){
@@ -30,6 +39,8 @@ fun times(i : Int, function: (i : Int) -> Unit){
 
 }
 enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
+
+val CP : ColoredPrinter = ColoredPrinter.Builder(1, false).build()
 
 data class User(var name : String, val rank: Rank)
 data class System(var name : String)

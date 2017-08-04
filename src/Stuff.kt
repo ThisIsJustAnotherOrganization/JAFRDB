@@ -6,7 +6,7 @@ fun handleWS(msg: String): Unit {
 
 val inpThr : Thread = Thread(fun (){
     while (true) {
-        println("triggered")
+        //println("triggered")
         var line: String?
         line = readLine()
         //while (readLine().isNullOrBlank()){}
