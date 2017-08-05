@@ -7,8 +7,7 @@ fun handleWS(msg: String): Unit {
 val inpThr : Thread = Thread(fun (){
     while (true) {
         //println("triggered")
-        var line: String?
-        line = readLine()
+        var line: String? = readLine()
         //while (readLine().isNullOrBlank()){}
         if (line.isNullOrBlank()) continue
         line = line!!
