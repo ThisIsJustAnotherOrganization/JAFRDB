@@ -4,7 +4,7 @@ import java.io.File
 import java.lang.Exception
 import java.util.regex.Pattern
 
-var LogFile : File = File(config.LogPath + "\\#ratchat.log")
+var LogFile : File = File(config.LogPath)
 val listen = listener()
 val tailer = Tailer.create(LogFile, listen, 20, true)
 
@@ -19,7 +19,8 @@ class listener : TailerListenerAdapter(){
     }
     override fun handle(l: String?) {
         var line = l!!
-        line = line.split(Pattern.compile(" "), 4)[3]
+        var nick = line.split(Pattern.compile(" "), 5)[3].replace("<", "").replace(">", "")
+        line = line.split(Pattern.compile(" "), 5)[4].trim()
         if (line.toCharArray()[0] == '!'){
             //handle Mecha comm
             when(line.split(Pattern.compile(" "), 2)[0]){
@@ -34,7 +35,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.rats.addAll(rats)}
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.rats.addAll(rats) }
+                        rescues.filter { it.client == number }.forEach { it.rats.addAll(rats) }
                     }
                 }
 
@@ -49,7 +50,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.rats.removeAll(rats)}
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.rats.removeAll(rats) }
+                        rescues.filter { it.client == number }.forEach { it.rats.removeAll(rats) }
                     }
                 }
 
@@ -60,7 +61,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { rescues.remove(it) }
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { rescues.remove(it) }
+                        rescues.filter { it.client == number }.forEach { rescues.remove(it) }
                     }
                 }
 
@@ -71,7 +72,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.cr = !it.cr }
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.cr = !it.cr }
+                        rescues.filter { it.client == number }.forEach { it.cr = !it.cr }
                 }
 
                 }
@@ -84,7 +85,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.clientSystem.name = sys }
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.clientSystem.name = sys }
+                        rescues.filter { it.client == number }.forEach { it.clientSystem.name = sys }
                     }
                 }
                 "!cmdr" -> {
@@ -92,10 +93,10 @@ class listener : TailerListenerAdapter(){
                     val cmdr = line.split(Pattern.compile(" "), 3)[2]
                     if (number.contains("#") || number.toInt().toString() == number){
                         number = number.replace("#", "")
-                        rescues.filter { it.number == number.toInt() }.forEach { it.client.name = cmdr }
+                        rescues.filter { it.number == number.toInt() }.forEach { it.client = cmdr }
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.client.name = cmdr }
+                        rescues.filter { it.client == number }.forEach { it.client = cmdr }
                     }
                 }
 
@@ -107,7 +108,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.platform = platform}
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.platform = platform }
+                        rescues.filter { it.client == number }.forEach { it.platform = platform }
                     }
                 }
 
@@ -118,7 +119,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.number == number.toInt() }.forEach { it.active = !it.active }
                     }
                     else{
-                        rescues.filter { it.client.name == number }.forEach { it.active = !it.active }
+                        rescues.filter { it.client == number }.forEach { it.active = !it.active }
                     }
 
                 }
@@ -126,8 +127,32 @@ class listener : TailerListenerAdapter(){
             }
         }
         else {
-            if (line.contains("fr")) {
-                if (line.contains("fr+")) {
+            if (line.startsWith("RATSIGNAL")){
+                //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
+                val parts = line.split(" - ")
+                val name : String = parts[1].replace("CMDR ", "")
+                val system : String = parts[2].replace("System: ", "").replace(Regex.fromLiteral("/\\([\\w\\d\\s.]*\\)/i"), "").trim()
+                val platform : String = parts[3].replace("Platform: ", "")
+                val cr : Boolean = parts[4].replace("O2: ", "") != "OK"
+                val lang : String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
+                val number : Int = parts[5].replace("Language: ", "").split(" ")[2].replace("(", "").replace(")", "").replace("Case #", "").toInt()
+
+                rescues.add(Rescue(name, System(system), lang, number, platform, cr))
+
+            }
+            else{
+                if (line.contains("fr")) {
+                    if (line.contains("fr+")) {
+                        var number = line.split(" ")[1]
+                        val platform = line.split(Pattern.compile(" "), 2)[0]
+                        if (number.contains("#") || number.toInt().toString() == number){
+                            number = number.replace("#", "")
+                            rescues.filter { it.number == number.toInt() }.forEach { it.platform = platform}
+                        }
+                        else{
+                            rescues.filter { it.client == number }.forEach { it.platform = platform }
+                        }
+                    }
                 }
             }
         }

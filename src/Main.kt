@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
     Toolkit.init()
     Toolkit.clearScreen(color)
     color.foreground = CharColor.CYAN
-    rescues.add(Rescue(User("LASTCHAOSMARINE", Rank.rat), System("WEPAI OZ-O E6-7558"), "en-GB", 5, "PS4", true))
+    rescues.add(Rescue("LASTCHAOSMARINE", System("WEPAI OZ-O E6-7558"), "en-GB", 5, "PS4", true))
     rescues[0].rats.add(Rat("Test rat 1", Status("")))
     rescues[0].rats.add(Rat("Test rat 2", Status("")))
 
@@ -72,8 +72,8 @@ fun printRescues() : Int{
 
         Toolkit.printString(res.number.toString() + " |", charCount + 2, linecount + 2, colors)
         charCount += res.number.toString().length + 2
-        Toolkit.printString(" " + res.client.name + " |", charCount + 2, linecount + 2, colors)
-        charCount += res.client.name.length + 3
+        Toolkit.printString(" " + res.client + " |", charCount + 2, linecount + 2, colors)
+        charCount += res.client.length + 3
         Toolkit.printString(" " + res.language + " |", charCount + 2, linecount + 2, colors)
         charCount += res.language.length + 3
         Toolkit.printString(" " + res.platform + " |", charCount + 2, linecount + 2, colors)
@@ -145,7 +145,6 @@ fun times(i : Int, function: (i : Int) -> Unit){
 enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
 
 
-data class User(var name : String, val rank: Rank)
 data class Rat(var name : String, var status : Status)
 data class System(var name : String)
 data class Status(var status : String){
@@ -159,7 +158,7 @@ data class Status(var status : String){
     //var closed : Boolean = false
     var interdicted: Boolean = false
 }
-data class Rescue(val client : User, var clientSystem : System, val language : String, val number : Int, var platform : String, var cr : Boolean){
+data class Rescue(var client : String, var clientSystem : System, val language : String, val number : Int, var platform : String, var cr : Boolean){
     var rats : MutableList<Rat> = ArrayList()
     var notes : MutableList<String> = ArrayList()
     var active : Boolean = true
