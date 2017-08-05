@@ -9,6 +9,9 @@ val listen = listener()
 val tailer = Tailer.create(LogFile, listen, 20, true)
 
 
+var tailerStopped = false
+
+
 class listener : TailerListenerAdapter(){
     override fun init(tailer: Tailer?) {
         toPrint.add("Tailer started")
@@ -127,7 +130,7 @@ class listener : TailerListenerAdapter(){
             }
         }
         else {
-            if (line.startsWith("RATSIGNAL")){
+            if (line.startsWith("\tRATSIGNAL")){
                 //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                 val parts = line.split(" - ")
                 val name : String = parts[1].replace("CMDR ", "")
@@ -225,6 +228,7 @@ class listener : TailerListenerAdapter(){
     }
 
     override fun handle(ex: Exception?) {
+        tailerStopped = true
         toPrint.add(ex?.toString()!!)
     }
 }

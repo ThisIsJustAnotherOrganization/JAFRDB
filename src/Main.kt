@@ -1,6 +1,7 @@
 import jcurses.system.CharColor
 import jcurses.system.Toolkit
 import org.apache.commons.io.IOUtils
+import org.apache.commons.io.input.Tailer
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -22,7 +23,7 @@ fun main(args: Array<String>) {
     Toolkit.init()
     Toolkit.clearScreen(color)
     color.foreground = CharColor.CYAN
-    rescues.add(Rescue("LASTCHAOSMARINE", System("WEPAI OZ-O E6-7558"), "en-GB", 5, "PS4", true))
+    /*rescues.add(Rescue("LASTCHAOSMARINE", System("WEPAI OZ-O E6-7558"), "en-GB", 5, "PS4", true))
     rescues[0].rats.add(Rat("Test rat 1", Status("")))
     rescues[0].rats.add(Rat("Test rat 2", Status("")))
 
@@ -35,7 +36,7 @@ fun main(args: Array<String>) {
     rescues[0].rats[1].status.interdicted = true
     rescues[0].rats[1].status.instancingP = true
     rescues[0].rats[1].status.disconnected = true
-    toPrint.add("TESTING!")
+    toPrint.add("TESTING!")*/
     //printRescues()
 
     //always last call
@@ -45,6 +46,15 @@ fun main(args: Array<String>) {
 
 }
 val screenupdate = fixedRateTimer("ScreenUpdater", false, 500, 1000, ::updateScreen)
+val tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
+
+
+fun checkTailer(task : TimerTask) {
+    if (tailerStopped){
+        tailerStopped = false
+        tailer.run()
+    }
+}
 
 @Volatile
 var toPrint = ArrayList<String>()
