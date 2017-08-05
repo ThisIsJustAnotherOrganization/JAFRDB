@@ -141,19 +141,85 @@ class listener : TailerListenerAdapter(){
 
             }
             else{
-                if (line.contains("fr")) {
-                    if (line.contains("fr+")) {
-                        var number = line.split(" ")[1]
-                        val platform = line.split(Pattern.compile(" "), 2)[0]
-                        if (number.contains("#") || number.toInt().toString() == number){
-                            number = number.replace("#", "")
-                            rescues.filter { it.number == number.toInt() }.forEach { it.platform = platform}
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.platform = platform }
-                        }
+                if (line.contains("fr+")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.friended = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.friended = true }}
                     }
                 }
+
+                if (line.contains("wr+")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.winged = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.winged = true }}
+                    }
+                }
+
+                if (line.contains("beacon+") || line.contains("bc+")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.beacon = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.beacon = true }}
+                    }
+                }
+
+                if (line.contains("sys+")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.inSys = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.inSys = true }}
+                    }
+                }
+
+                if (line.contains("fuel+")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.fueled = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.fueled = true }}
+                    }
+                }
+
+                if (line.contains("inst-")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.instancingP = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.instancingP = true }}
+                    }
+                }
+
+                if (line.contains("int") || line.contains("inter") || line.contains("interdicted")) {
+                    var number = line.split(" ")[1]
+                    if (number.contains("#") || number.toInt().toString() == number){
+                        number = number.replace("#", "")
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.friended = true }}
+                    }
+                    else{
+                        rescues.filter { it.number == number.toInt() }.forEach { it.rats.filter { it.name == nick }.forEach { it.status.friended = true }}
+                    }
+                }
+
+                //TODO implement Disconnected
+
             }
         }
     }
