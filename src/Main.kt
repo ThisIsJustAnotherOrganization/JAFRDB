@@ -60,6 +60,7 @@ fun checkTailer(task : TimerTask) {
 var toPrint = ArrayList<String>()
 
 fun updateScreen(timerTask: TimerTask) {
+    Toolkit.clearScreen(blackwhite)
     var linecount = 0
     //toPrint.add(Random().nextDouble().toString())
     Toolkit.printString("Welcome to JAFRDB", Toolkit.getScreenWidth() / 2 - 17 /* welcome string length*/, 0, color)
