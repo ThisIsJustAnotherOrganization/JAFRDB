@@ -78,23 +78,24 @@ fun printRescues() : Int{
     var linecount = 0
     var colors = CharColor(CharColor.BLACK, CharColor.WHITE)
         for (res in rescues){
-        var charCount = 0
-        if (res.cr) {colors.foreground = CharColor.RED}
+            var charCount = 0
+            if (res.cr) {colors.foreground = CharColor.RED}
+            if (!res.active) {colors.colorAttribute = CharColor.REVERSE}
 
-        Toolkit.printString(res.number.toString() + " |", charCount + 2, linecount + 2, colors)
-        charCount += res.number.toString().length + 2
-        Toolkit.printString(" " + res.client + " |", charCount + 2, linecount + 2, colors)
-        charCount += res.client.length + 3
-        Toolkit.printString(" " + res.language + " |", charCount + 2, linecount + 2, colors)
-        charCount += res.language.length + 3
-        Toolkit.printString(" " + res.platform + " |", charCount + 2, linecount + 2, colors)
-        charCount += res.platform.length + 3
-        Toolkit.printString(" " + res.clientSystem.name, charCount + 2, linecount + 2, colors)
-        charCount += res.clientSystem.name.length + 1
-        linecount = printStatus(res, linecount)
-        //printNotes
+            Toolkit.printString(res.number.toString() + " |", charCount + 2, linecount + 2, colors)
+            charCount += res.number.toString().length + 2
+            Toolkit.printString(" " + res.client + " |", charCount + 2, linecount + 2, colors)
+            charCount += res.client.length + 3
+            Toolkit.printString(" " + res.language + " |", charCount + 2, linecount + 2, colors)
+            charCount += res.language.length + 3
+            Toolkit.printString(" " + res.platform + " |", charCount + 2, linecount + 2, colors)
+            charCount += res.platform.length + 3
+            Toolkit.printString(" " + res.clientSystem.name, charCount + 2, linecount + 2, colors)
+            charCount += res.clientSystem.name.length + 1
+            linecount = printStatus(res, linecount)
+            //printNotes
 
-        colors = CharColor(CharColor.BLACK, CharColor.WHITE)
+            colors = CharColor(CharColor.BLACK, CharColor.WHITE)
     }
     return linecount
 }
