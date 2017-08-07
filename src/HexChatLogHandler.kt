@@ -9,7 +9,7 @@ var LogFile : File = File(config.LogPath)
 val listen = listener()
 val tailer = Tailer.create(LogFile, listen, 20, true)
 
-enum class supportedClients{hexchat, mirc}
+enum class supportedClients{hexchat}
 
 
 var tailerStopped = false
@@ -22,6 +22,8 @@ class listener : TailerListenerAdapter(){
     override fun handle(l: String?) {
         var valid : Boolean = false
         supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
+        if (config.ClientType.isNullOrBlank()) throw IllegalStateException("empty clienttype")
+        if (!valid) throw IllegalStateException("clientType not supported")
         this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
     }
 
@@ -30,6 +32,7 @@ class listener : TailerListenerAdapter(){
         line = line.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 5)[3].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         line = line.split(Pattern.compile(" "), 5)[4].trim()
+        handleMessage(nick, line)
     }
 
 
@@ -216,17 +219,17 @@ class listener : TailerListenerAdapter(){
             return ret[0]
         }
         else{
-            var ret = rescues.filter{it.client == number}
+            var ret = rescues.filter{it.client == number}.toMutableList()
             if (ret.isEmpty()){
                 for (res in rescues) {
-                    ret = rescues.filter{}
-                    res.rats.filter { it.name == nick }
+                    var valid = false
+                    res.rats.forEach { if (it.name == nick){valid = true}}
+                    if (valid){ret.add(res); break}
                 }
             }
             return ret[0]
         }
 
-        return rescues.filter{ it.rats.filter{it.name == nick}}.first()
     }
 
     override fun handle(ex: Exception?) {
