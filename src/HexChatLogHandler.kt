@@ -22,7 +22,7 @@ class listener : TailerListenerAdapter(){
     override fun handle(l: String?) {
         var valid : Boolean = false
         supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
-        if (config.ClientType.isNullOrBlank()) throw IllegalStateException("empty clienttype")
+        if (config.ClientType.isNullOrBlank()) config.ClientType = "hexchat" //throw IllegalStateException("empty clienttype")
         if (!valid) throw IllegalStateException("clientType not supported")
         this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
     }
@@ -226,6 +226,9 @@ class listener : TailerListenerAdapter(){
                     res.rats.forEach { if (it.name == nick){valid = true}}
                     if (valid){ret.add(res); break}
                 }
+            }
+            if (ret.isEmpty()){
+                return Rescue("", System(""), "", -1, "", false)
             }
             return ret[0]
         }
