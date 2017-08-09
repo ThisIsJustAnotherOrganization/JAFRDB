@@ -9,7 +9,7 @@ var LogFile : File = File(config.LogPath)
 val listen = listener()
 val tailer = Tailer.create(LogFile, listen, 20, true)
 
-enum class supportedClients{hexchat}
+enum class supportedClients{hexchat, mirc}
 
 
 var tailerStopped = false
@@ -35,6 +35,13 @@ class listener : TailerListenerAdapter(){
         handleMessage(nick, line)
     }
 
+    fun mirc(l : String?){
+        var line : String = l!!.replace("\t", " ")
+        val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
+        line = line.split(Pattern.compile(" "), 3)[2].trim()
+        handleMessage(nick, line)
+    }
+
 
 
     fun handleMessage(nick : String, message: String){
@@ -46,6 +53,7 @@ class listener : TailerListenerAdapter(){
             when(message.split(Pattern.compile(" "), 2)[0]){
                 "!go", "!assign" -> {
                     var number = message.split(" ")[1]
+                    if (message.split(Pattern.compile(" "), 3).size < 3) return
                     val rt = message.split(Pattern.compile(" "), 3)[2]
                     var rats = ArrayList<Rat>()
                     rt.split(" ").mapTo(rats) { Rat(it, Status("")) }
@@ -96,7 +104,7 @@ class listener : TailerListenerAdapter(){
 
                 }
 
-                "!sys" -> {
+                "!sys", "!system" -> {
                     var number = message.split(" ")[1]
                     val sys = message.split(Pattern.compile(" "), 3)[2]
                     if (number.contains("#") || number.toIntOrNull() != null){
@@ -107,7 +115,7 @@ class listener : TailerListenerAdapter(){
                         rescues.filter { it.client == number }.forEach { it.clientSystem.name = sys }
                     }
                 }
-                "!cmdr" -> {
+                "!cmdr", "!commander" -> {
                     var number = message.split(" ")[1]
                     val cmdr = message.split(Pattern.compile(" "), 3)[2]
                     if (number.contains("#") || number.toIntOrNull() != null){
@@ -212,8 +220,9 @@ class listener : TailerListenerAdapter(){
         var number : String = ""
         rescues.forEach { names.add(it.client.toLowerCase()) }
         line.split(" ").forEach { if (names.contains(it) || it.contains("#") || it.toIntOrNull() != null){number = it} }
-        if (number.contains("#") || number.toIntOrNull() != null) {
+        if (number.replace("#", "").toIntOrNull() != null) {
             number = number.replace("#", "")
+
             val ret = rescues.filter{it.number == number.toInt()}
             if (ret.isEmpty()) return Rescue("", System(""), "", -1, "", false)
             return ret[0]
@@ -224,7 +233,7 @@ class listener : TailerListenerAdapter(){
                 for (res in rescues) {
                     var valid = false
                     res.rats.forEach { if (it.name == nick){valid = true}}
-                    if (valid){ret.add(res); break}
+                    if (valid && res.active){ret.add(res); break}
                 }
             }
             if (ret.isEmpty()){
