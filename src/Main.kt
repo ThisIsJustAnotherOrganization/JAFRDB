@@ -1,3 +1,4 @@
+import Trilean.*
 import jcurses.system.CharColor
 import jcurses.system.Toolkit
 import org.apache.commons.io.IOUtils
@@ -40,7 +41,7 @@ fun main(args: Array<String>) {
     //printRescues()
 
     //always last call
-    //inpThr.run()
+    inpThr.run()
     //while(true);
 
 
@@ -107,35 +108,35 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
         Toolkit.printString(name + ": ", charCount + 3, lineCount + 2, blackwhite)
         charCount += name.length + 2
 
-        if (status.friended) Toolkit.printString("FR+", charCount + 3, lineCount + 2, CharColor(CharColor.MAGENTA, CharColor.WHITE))
+        if (status.friended == TRUE) Toolkit.printString("FR+", charCount + 3, lineCount + 2, CharColor(CharColor.MAGENTA, CharColor.WHITE))
         else Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 3 + 1
 
-        if (status.winged) Toolkit.printString("WR+", charCount + 3, lineCount + 2, CharColor(CharColor.CYAN, CharColor.WHITE))
+        if (status.winged == TRUE) Toolkit.printString("WR+", charCount + 3, lineCount + 2, CharColor(CharColor.CYAN, CharColor.WHITE))
         else Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 3 + 1
 
-        if (status.beacon) Toolkit.printString("Beacon+", charCount + 3, lineCount + 2, CharColor(CharColor.BLUE, CharColor.WHITE))
+        if (status.beacon == TRUE) Toolkit.printString("Beacon+", charCount + 3, lineCount + 2, CharColor(CharColor.BLUE, CharColor.WHITE))
         else Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 7 + 1
 
-        if (status.inSys) Toolkit.printString("Sys+", charCount + 3, lineCount + 2, CharColor(CharColor.YELLOW, CharColor.WHITE))
+        if (status.inSys == TRUE) Toolkit.printString("Sys+", charCount + 3, lineCount + 2, CharColor(CharColor.YELLOW, CharColor.WHITE))
         else Toolkit.printString("Sys-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 4 + 1
 
-        if (status.fueled) Toolkit.printString("Fuel+", charCount + 3, lineCount + 2, CharColor(CharColor.GREEN, CharColor.WHITE))
+        if (status.fueled == TRUE) Toolkit.printString("Fuel+", charCount + 3, lineCount + 2, CharColor(CharColor.GREEN, CharColor.WHITE))
         else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 5 + 1
 
-        if (status.disconnected) Toolkit.printString("DC", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
+        if (status.disconnected == TRUE) Toolkit.printString("DC", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
         else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 2 + 1
 
-        if (status.instancingP) Toolkit.printString("Inst-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
+        if (status.instancingP == TRUE) Toolkit.printString("Inst-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
         else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 5 + 1
 
-        if (status.interdicted) Toolkit.printString("INT", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
+        if (status.interdicted == TRUE) Toolkit.printString("INT", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
         else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 3 + 1
 
@@ -160,21 +161,25 @@ enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
 data class Rat(var name : String, var status : Status)
 data class System(var name : String)
 data class Status(var status : String){
-    var friended : Boolean = false
-    var winged : Boolean = false
-    var beacon : Boolean = false
-    var inSys : Boolean = false
-    var fueled : Boolean = false
-    var disconnected : Boolean = false
-    var instancingP: Boolean = false
-    //var closed : Boolean = false
-    var interdicted: Boolean = false
+    var friended : Trilean = NEUTRAL
+    var winged : Trilean = NEUTRAL
+    var beacon : Trilean = NEUTRAL
+    var inSys : Trilean = NEUTRAL
+    var fueled : Trilean = NEUTRAL
+    var disconnected : Trilean = NEUTRAL
+    var instancingP: Trilean = NEUTRAL
+    //var closed : Trilean = NEUTRAL
+    var interdicted: Trilean = NEUTRAL
 }
 data class Rescue(var client : String, var clientSystem : System, val language : String, val number : Int, var platform : String, var cr : Boolean){
     var rats : MutableList<Rat> = ArrayList()
     var notes : MutableList<String> = ArrayList()
     var active : Boolean = true
 
+}
+
+enum class Trilean{
+    TRUE, FALSE, NEUTRAL;
 }
 var rescues = ArrayList<Rescue>()
 var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"))

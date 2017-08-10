@@ -1,3 +1,4 @@
+import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
 fun handleWS(msg: String): Unit {
@@ -8,32 +9,17 @@ val inpThr : Thread = Thread(fun (){
     while (true) {
         //println("triggered")
         var line: String? = readLine()
-        //while (readLine().isNullOrBlank()){}
         if (line.isNullOrBlank()) continue
         line = line!!
 
-        println("line is: " + line)
         if (line == "exit") {
             exitProcess(-1)
         }
- /*//Websocket
-       // if (WSinst.isClosed) {
-            println("connecting")
-            assert(WSinst.connectBlocking())
-        //}
-        if (WSinst.isClosed) {
-            println("still closed")
-            exitProcess(-1)
+        var nick : String
+        if (line.contains("nick: ")){
+            nick = line.replace("nick: ", "").split(Pattern.compile(" "), 2).first()
+            line.replace("nick: " + nick, "").trim()
         }
-        println("waiting for connected")
-*//* //       while (WSinst.isConnecting || !WSinst.isClosed) {}
-        println("Connected. trying to send")
-        WSinst.send(line)
-        println("sent: " + line)
-        */
-
-        //WebAPi
-        var response = WAPIinst.request("https://api.fuelrats.com/" + line)
-        for (str in response){println(str)}
+        else{listen.handleMessage("", line)}
     }
 })

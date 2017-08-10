@@ -1,3 +1,4 @@
+import Trilean.*
 import jcurses.system.Toolkit
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
@@ -20,11 +21,17 @@ class listener : TailerListenerAdapter(){
     }
 
     override fun handle(l: String?) {
-        var valid : Boolean = false
-        supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
-        if (config.ClientType.isNullOrBlank()) config.ClientType = "hexchat" //throw IllegalStateException("empty clienttype")
-        if (!valid) throw IllegalStateException("clientType not supported")
-        this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
+        try {
+            var valid : Boolean = false
+            supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
+            if (config.ClientType.isNullOrBlank()) config.ClientType = "hexchat" //throw IllegalStateException("empty clienttype")
+            if (!valid) throw IllegalStateException("clientType not supported")
+            this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
+        } catch(e: Exception) {
+            toPrint.add(e.toString())
+            e.printStackTrace()
+            while (true);
+        }
     }
 
     fun hexchat(l : String?){
@@ -38,7 +45,7 @@ class listener : TailerListenerAdapter(){
     fun mirc(l : String?){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 3)[2].trim()
+        line = line.split(Pattern.compile(" "), 3)[2].trim().replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
@@ -170,40 +177,40 @@ class listener : TailerListenerAdapter(){
             else {
                 message = message.toLowerCase()
                 if (message.contains("fr+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = TRUE }
                 }
 
                 if (message.contains("wr+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = true; it.status.friended = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = TRUE; it.status.friended = TRUE }
                 }
 
                 if (message.contains("beacon+") || message.contains("bc+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = true; it.status.winged = true; it.status.friended = true; it.status.inSys = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.friended = TRUE; it.status.inSys = TRUE }
                 }
 
                 if (message.contains("sys+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.inSys = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.inSys = TRUE }
                 }
 
                 if (message.contains("fuel+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.fueled = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.fueled = TRUE }
                 }
 
                 if (message.contains("inst-")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE }
                     Toolkit.beep()
                 }
 
                 if (message.contains("inst+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = false }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = FALSE }
                 }
 
                 if (message.startsWith("int") || message.contains("interdic")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = true }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = TRUE }
                 }
 
                 if (message.contains("clear")){
-                    getCase(message, nick).rats.filter{it.name == nick}.forEach { it.status.interdicted = false }
+                    getCase(message, nick).rats.filter{it.name == nick}.forEach { it.status.interdicted = TRUE }
                 }
 
                 //TODO implement Disconnected
@@ -248,5 +255,10 @@ class listener : TailerListenerAdapter(){
         tailerStopped = true
         //toPrint.add(ex?.toString()!!)
         ex!!.printStackTrace()
+    }
+
+    override fun fileNotFound() {
+        toPrint.add("File Not Found")
+        tailer.stop()
     }
 }
