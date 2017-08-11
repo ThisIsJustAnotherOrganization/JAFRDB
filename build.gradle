@@ -26,7 +26,7 @@ sourceSets{
 
 jar{
     manifest{
-        from file("src/META-INF/MANIFEST.MF")
+        attributes 'Main-Class': 'MainKt'
     }
 
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
