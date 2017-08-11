@@ -1,9 +1,6 @@
+import jdk.nashorn.internal.runtime.ScriptingFunctions.readLine
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
-
-fun handleWS(msg: String): Unit {
-    println(msg)
-}
 
 val inpThr : Thread = Thread(fun (){
     while (true) {

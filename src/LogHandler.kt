@@ -17,7 +17,7 @@ var tailerStopped = false
 
 
 class listener : TailerListenerAdapter(){
-    val ratsigRegex = "RATSIGNAL.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)".toRegex()
+    val ratsigRegex = "RATSIGNAL.*CMDR\\s\\02?(.*?)\\02?\\s\\-.*System\\72\\s\\02?(.*?)(?:\\s[Ss][Yy][Ss][Tt][Ee][Mm])?\\02?\\s\\(.*Platform\\72\\s\\02?(?:\\03\\d\\d)?(\\w+).*O2\\72\\s\\02?(?:\\03\\d\\d)?((?:NOT\\s)?OK).*Language\\72\\s.*\\((..).*\\(Case\\s#(\\d*)\\)".toRegex()
     //regex at https://regex101.com/r/Vjtkxk/4
     
     override fun init(tailer: Tailer?) {
@@ -25,9 +25,10 @@ class listener : TailerListenerAdapter(){
 
     override fun handle(l: String?) {
         try {
+            if (l == null || l == ""){return}
             var valid : Boolean = false
             supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
-            if (config.ClientType.isNullOrBlank()) config.ClientType = "hexchat" //throw IllegalStateException("empty clienttype")
+            if (config.ClientType.isNullOrBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
             if (!valid) throw IllegalStateException("clientType not supported")
             this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
         } catch(e: Exception) {
@@ -48,7 +49,7 @@ class listener : TailerListenerAdapter(){
     fun mirc(l : String?){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 3)[2].trim().replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        line = line.split(Pattern.compile(" "), 3)[2].trim()
         handleMessage(nick, line)
     }
 
@@ -166,13 +167,13 @@ class listener : TailerListenerAdapter(){
         else {
             if (message.startsWith("RATSIGNAL")){
                 //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
-                val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups
-                val name : String = matches.get(1)?.value
-                val system : String = matches.get(2)?.value
-                val platform : String = matches.get(3)?.value
-                val cr : Boolean = matches.get(4)?.value != "OK"
-                val lang : String = matches.get(5)?.value
-                val number : Int = matches.get(6)?.value.toInt()
+                val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
+                val name : String = matches.get(1)?.value!!
+                val system : String = matches.get(2)?.value!!
+                val platform : String = matches.get(3)?.value!!
+                val cr : Boolean = matches.get(4)?.value!! != "OK"
+                val lang : String = matches.get(5)?.value!!
+                val number : Int = matches.get(6)?.value!!.toInt()
 
                 rescues.add(Rescue(name, System(system), lang, number, platform, cr))
 

@@ -3,8 +3,6 @@ import jcurses.system.CharColor
 import jcurses.system.Toolkit
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.input.Tailer
-import org.java_websocket.client.WebSocketClient
-import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
 import java.net.URL
 import java.net.URLConnection
@@ -15,8 +13,6 @@ import kotlin.concurrent.fixedRateTimer
 
 
 fun main(args: Array<String>) {
-    //times(5, ::print)
-    //WSinst.connect()
     initConfig()
     readConfig()
     saveConfig()
@@ -24,25 +20,9 @@ fun main(args: Array<String>) {
     Toolkit.init()
     Toolkit.clearScreen(color)
     color.foreground = CharColor.CYAN
-    /*rescues.add(Rescue("LASTCHAOSMARINE", System("WEPAI OZ-O E6-7558"), "en-GB", 5, "PS4", true))
-    rescues[0].rats.add(Rat("Test rat 1", Status("")))
-    rescues[0].rats.add(Rat("Test rat 2", Status("")))
-
-    rescues[0].rats[1].status.friended = true
-    rescues[0].rats[1].status.winged = true
-    rescues[0].rats[1].status.beacon = true
-    rescues[0].rats[1].status.inSys = true
-    rescues[0].rats[1].status.interdicted = true
-    rescues[0].rats[1].status.fueled = true
-    rescues[0].rats[1].status.interdicted = true
-    rescues[0].rats[1].status.instancingP = true
-    rescues[0].rats[1].status.disconnected = true
-    toPrint.add("TESTING!")*/
-    //printRescues()
 
     //always last call
     inpThr.run()
-    //while(true);
 
 
 }
@@ -182,50 +162,6 @@ enum class Trilean{
     TRUE, FALSE, NEUTRAL;
 }
 var rescues = ArrayList<Rescue>()
-var WSinst : WebSocket = WebSocket(URI("wss://api.fuelrats.com:443"))
-class WebSocket(serverUri: URI?) : WebSocketClient(serverUri) {
-    var errorCount: Int = 0
-    override fun onClose(code: Int, reason: String?, remote: Boolean) {
-        errorCount++
-        println(reason)
-        //if (errorCount <= 5) connect()
-    }
 
-    override fun onMessage(message: String?) {
-        if (message == null) return
-        handleWS(message)
-    }
-
-    override fun onError(ex: Exception) {
-        //println(ex.toString())
-        ex.printStackTrace()
-        if (errorCount > 5) {
-            close()
-            throw Exception("More than 5 errors occured", ex)
-        }
-    }
-
-    override fun onOpen(handshakedata: ServerHandshake?) {
-        println("opening")
-        //throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-}
-
-var WAPIinst = WebAPI()
-class WebAPI{ //rescue offset is 13764
-
-    private fun getResponse(urlconnection : URLConnection) : MutableList<String>{
-        return IOUtils.readLines(urlconnection.getInputStream(), urlconnection.contentEncoding)
-    }
-
-    fun request(urlToPage : String) : MutableList<String>{
-        val urlconnection = URL(urlToPage).openConnection()
-        urlconnection.setRequestProperty("Authorization", "Bearer " + config.authkey)
-        urlconnection.connect()
-        return getResponse(urlconnection)
-
-    }
-
-}
 
 
