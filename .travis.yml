@@ -1,2 +1,2 @@
 language: java
-script: chmod +x gradlew && ./gradlew build
+#script: gradle build
