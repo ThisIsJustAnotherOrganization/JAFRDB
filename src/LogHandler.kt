@@ -17,6 +17,9 @@ var tailerStopped = false
 
 
 class listener : TailerListenerAdapter(){
+    val ratsigRegex = "RATSIGNAL.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+)\03?\02?.*O2\72\s((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)".toRegex()
+    //regex at https://regex101.com/r/Vjtkxk/2
+    
     override fun init(tailer: Tailer?) {
     }
 
@@ -163,13 +166,13 @@ class listener : TailerListenerAdapter(){
         else {
             if (message.startsWith("RATSIGNAL")){
                 //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
-                val parts = message.split(" - ")
-                val name : String = parts[1].replace("CMDR ", "")
-                val system : String = parts[2].replace("System: ", "").split("(")[0]
-                val platform : String = parts[3].replace("Platform: ", "")
-                val cr : Boolean = parts[4].replace("O2: ", "") != "OK"
-                val lang : String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
-                val number : Int = parts.last().split(" ").last().replace("(", "").replace(")", "").replace("#", "").toInt()
+                val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups
+                val name : String = matches.get(1)?.value
+                val system : String = matches.get(2)?.value
+                val platform : String = matches.get(3)?.value
+                val cr : Boolean = matches.get(4)?.value != "OK"
+                val lang : String = matches.get(5)?.value
+                val number : Int = matches.get(6)?.value.toInt()
 
                 rescues.add(Rescue(name, System(system), lang, number, platform, cr))
 
