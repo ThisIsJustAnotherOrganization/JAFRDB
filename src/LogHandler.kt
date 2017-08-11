@@ -17,8 +17,8 @@ var tailerStopped = false
 
 
 class listener : TailerListenerAdapter(){
-    val ratsigRegex = "RATSIGNAL.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+)\03?\02?.*O2\72\s((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)".toRegex()
-    //regex at https://regex101.com/r/Vjtkxk/2
+    val ratsigRegex = "RATSIGNAL.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)".toRegex()
+    //regex at https://regex101.com/r/Vjtkxk/4
     
     override fun init(tailer: Tailer?) {
     }
