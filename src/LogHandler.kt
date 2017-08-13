@@ -192,12 +192,24 @@ class listener : TailerListenerAdapter(){
                     getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = TRUE }
                 }
 
+                if (message.contains("fr-")) {
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = FALSE }
+                }
+
                 if (message.contains("wr+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = TRUE; it.status.friended = TRUE }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = TRUE }
+                }
+
+                if (message.contains("wr-")) {
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE }
                 }
 
                 if (message.contains("beacon+") || message.contains("bc+")) {
-                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.friended = TRUE; it.status.inSys = TRUE }
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.inSys = TRUE }
+                }
+
+                if (message.contains("beacon-") || message.contains("bc-")) {
+                    getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE }
                 }
 
                 if (message.contains("sys+")) {

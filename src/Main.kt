@@ -1,15 +1,10 @@
 import Trilean.*
 import jcurses.system.CharColor
 import jcurses.system.Toolkit
-import org.apache.commons.io.IOUtils
-import org.apache.commons.io.input.Tailer
-import java.net.URI
-import java.net.URL
-import java.net.URLConnection
 import java.util.*
-import javax.tools.Tool
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
+import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 
 
 fun main(args: Array<String>) {
@@ -89,19 +84,22 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
         charCount += name.length + 2
 
         if (status.friended == TRUE) Toolkit.printString("FR+", charCount + 3, lineCount + 2, CharColor(CharColor.MAGENTA, CharColor.WHITE))
-        else Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.friended == NEUTRAL) {Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))}
+        if (status.friended == FALSE) {Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))}
         charCount += 3 + 1
 
         if (status.winged == TRUE) Toolkit.printString("WR+", charCount + 3, lineCount + 2, CharColor(CharColor.CYAN, CharColor.WHITE))
-        else Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.winged == NEUTRAL) Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.winged == FALSE) Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
         charCount += 3 + 1
 
         if (status.beacon == TRUE) Toolkit.printString("Beacon+", charCount + 3, lineCount + 2, CharColor(CharColor.BLUE, CharColor.WHITE))
-        else Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.beacon == NEUTRAL) Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.beacon == FALSE) Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
         charCount += 7 + 1
 
         if (status.inSys == TRUE) Toolkit.printString("Sys+", charCount + 3, lineCount + 2, CharColor(CharColor.YELLOW, CharColor.WHITE))
-        else Toolkit.printString("Sys-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.inSys == NEUTRAL) Toolkit.printString("Sys-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
         charCount += 4 + 1
 
         if (status.fueled == TRUE) Toolkit.printString("Fuel+", charCount + 3, lineCount + 2, CharColor(CharColor.GREEN, CharColor.WHITE))
@@ -113,7 +111,8 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
         charCount += 2 + 1
 
         if (status.instancingP == TRUE) Toolkit.printString("Inst-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
-        else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.instancingP == NEUTRAL) Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.instancingP == FALSE) Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.GREEN))
         charCount += 5 + 1
 
         if (status.interdicted == TRUE) Toolkit.printString("INT", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
@@ -148,7 +147,6 @@ data class Status(var status : String){
     var fueled : Trilean = NEUTRAL
     var disconnected : Trilean = NEUTRAL
     var instancingP: Trilean = NEUTRAL
-    //var closed : Trilean = NEUTRAL
     var interdicted: Trilean = NEUTRAL
 }
 data class Rescue(var client : String, var clientSystem : System, val language : String, val number : Int, var platform : String, var cr : Boolean){
