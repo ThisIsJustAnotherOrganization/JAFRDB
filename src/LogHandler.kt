@@ -40,8 +40,7 @@ class listener : TailerListenerAdapter(){
     }
 
     fun hexchat(l : String?){
-        var line: String = l!!//.replace("\t", " ", true)
-        line = line.replace("\t", " ")
+        var line: String = l!!.replace("\t", " ", true)
         val nick = line.split(Pattern.compile(" "), 5)[3].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         line = line.split(Pattern.compile(" "), 5)[4].trim()
         handleMessage(nick, line)

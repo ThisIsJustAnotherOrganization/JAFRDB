@@ -9,13 +9,13 @@ val inpThr : Thread = Thread(fun (){
         line = line!!
 
         if (line == "exit") {
-            exitProcess(-1)
+            exitProcess(0)
         }
-        var nick : String
+        var nick : String = ""
         if (line.contains("nick: ")){
             nick = line.replace("nick: ", "").split(Pattern.compile(" "), 2).first()
             line.replace("nick: " + nick, "").trim()
         }
-        else{listen.handleMessage("", line)}
+        listen.handleMessage(nick, line)
     }
 })
