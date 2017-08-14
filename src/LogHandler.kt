@@ -1,4 +1,5 @@
-import Trilean.*
+import Trilean.FALSE
+import Trilean.TRUE
 import jcurses.system.Toolkit
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
@@ -251,7 +252,7 @@ class listener : TailerListenerAdapter(){
         var number : String = ""
         rescues.forEach { names.add(it.client.toLowerCase()) }
         line.split(" ").forEach { if (names.contains(it) || it.contains("#") || it.toIntOrNull() != null){number = it} }
-        if (number.replace("#", "").toIntOrNull() != null) {
+        if (number.replace("#", "").replace("c", "").toIntOrNull() != null) {
             number = number.replace("#", "")
 
             val ret = rescues.filter{it.number == number.toInt()}
