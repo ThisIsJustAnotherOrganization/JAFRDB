@@ -166,7 +166,7 @@ class listener : TailerListenerAdapter(){
             }
         }
         else {
-            if (message.startsWith("DRILLSIGNAL")){
+            if (message.startsWith(config.keyword.toUpperCase())){
                 //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
 /*                val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
                 val name : String = matches.get(1)?.value ?: ""

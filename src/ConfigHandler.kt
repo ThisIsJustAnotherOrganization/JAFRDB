@@ -10,6 +10,7 @@ class Config{
         var authkey: String = ""
         var LogPath: String = ""
         var ClientType: String = ""
+        var keyword: String = ""
 
 }
 
@@ -25,7 +26,9 @@ fun readConfig(){
         if (str.trim().toLowerCase().startsWith("logpath: ")){
             config.LogPath = str.trim().toLowerCase().split("logpath: ")[1]}
         if (str.trim().toLowerCase().startsWith("clienttype: ")){
-            config.ClientType = str.trim().toLowerCase().split("clienttype: ")[1]
+            config.ClientType = str.trim().toLowerCase().split("clienttype: ")[1] }
+        if (str.trim().toLowerCase().startsWith("keyword: ")){
+            config.keyword = str.trim().toLowerCase().split("keyword: ")[1]
         }
     }
 }
@@ -37,6 +40,7 @@ fun saveConfig(){
     tmp.add("authkey: " + config.authkey)
     tmp.add("logpath: " + config.LogPath)
     tmp.add("clienttype: " + config.ClientType)
+    tmp.add("keyword: " + config.keyword)
     IOUtils.writeLines(tmp, null, stream, Charset.defaultCharset())
     stream.flush()
     stream.close()
