@@ -193,7 +193,7 @@ class listener : TailerListenerAdapter(){
                 val number : Int = matches.get(6)?.value?.toInt() ?: -1*/
 
                     val parts = message.split(" - ")
-                    if (parts.size == 6) {
+                    if (parts.size >= 6) {
                         val name: String = parts[1].replace("CMDR ", "")
                         val system: String = parts[2].replace("System: ", "").split("(")[0]
                         val platform: String = parts[3].replace("Platform: ", "")
