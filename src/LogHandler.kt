@@ -4,7 +4,6 @@ import jcurses.system.Toolkit
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.PrintStream
 import java.lang.Exception
 import java.util.regex.Pattern
@@ -13,14 +12,14 @@ var LogFile : File = File(config.LogPath)
 val listen = listener()
 val tailer = Tailer.create(LogFile, listen, 20, true)
 
-enum class supportedClients{hexchat, mirc}
+enum class supportedClients{hexchat, mirc, ii}
 
 
 var tailerStopped = false
 
 
 class listener : TailerListenerAdapter(){
-    val ratsigRegex = "DRILLSIGNAL.*CMDR\\s\\02?(.*?)\\02?\\s-.*System\\x3a\\s\\02?(.*?)(?:\\s[Ss][Yy][Ss][Tt][Ee][Mm])?\\02?\\s\\(.*Platform\\72\\s\\02?(?:\\03\\d\\d)?(\\w+).*O2\\72\\s\\02?(?:\\03\\d\\d)?((?:NOT\\s)?OK).*Language\\72\\s.*\\((..).*\\(Case\\s#(\\d*)\\)".toRegex()
+    val ratsigRegex = ("RATSIGNAL.*CMDR\\s\\02?(.*?)\\02?\\s\\-.*System\\72\\s\\02?(.*?)(?:\\s[Ss][Yy][Ss][Tt][Ee][Mm])?\\02?\\s\\(.*Platform\\72\\s\\02?(?:\\03\\d\\d)?(\\w+).*O2\\72\\s\\02?(?:\\03\\d\\d)?((?:NOT\\s)?OK).*Language\\72\\s.*\\((..).*\\(Case\\s#(\\d*)\\)").toRegex()
     //regex at https://regex101.com/r/Vjtkxk/4
 
     var stackFile = PrintStream(File("stacktrace.log"))
@@ -55,6 +54,14 @@ class listener : TailerListenerAdapter(){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         line = line.split(Pattern.compile(" "), 3)[2].trim()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        handleMessage(nick, line)
+    }
+
+    fun ii(l : String?){
+        var line : String = l!!.replace("\t", " ")
+        val nick = line.split(Pattern.compile(" "), 4)[2].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
+        if (nick == "-!-") return
+        line = line.split(Pattern.compile(" "), 4)[3].trim()
         handleMessage(nick, line)
     }
 
@@ -184,7 +191,7 @@ class listener : TailerListenerAdapter(){
             else {
                 if (message.startsWith(config.keyword.toUpperCase())){
                     //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
-/*                val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
+               /* val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
                 val name : String = matches.get(1)?.value ?: ""
                 val system : String = matches.get(2)?.value ?: ""
                 val platform : String = matches.get(3)?.value ?: ""
@@ -200,6 +207,7 @@ class listener : TailerListenerAdapter(){
                         val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
                         val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
                         val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
+
 
                         rescues.add(Rescue(name, System(system), lang, number, platform, cr))
                     }
