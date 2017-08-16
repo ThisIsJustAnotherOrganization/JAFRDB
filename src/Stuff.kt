@@ -1,3 +1,4 @@
+import jcurses.system.Toolkit
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
@@ -9,6 +10,7 @@ val inpThr : Thread = Thread(fun (){
         line = line!!
 
         if (line == "exit") {
+            Toolkit.shutdown()
             exitProcess(0)
         }
         var nick : String = ""
