@@ -65,6 +65,14 @@ class listener : TailerListenerAdapter(){
         handleMessage(nick, line)
     }
 
+    fun ii(l : String?){
+        var line : String = l!!.replace("\t", " ")
+        val nick = line.split(Pattern.compile(" "), 4)[2].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
+        if (nick == "-!-") return
+        line = line.split(Pattern.compile(" "), 4)[3].trim()
+        handleMessage(nick, line)
+    }
+
     fun getNumber(l : String): String {
         val VALID = setOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
         val number = l.filter{ VALID.contains(it) }
