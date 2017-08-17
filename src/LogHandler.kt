@@ -61,7 +61,7 @@ class listener : TailerListenerAdapter(){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 4)[2].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         if (nick == "-!-") return
-        line = line.split(Pattern.compile(" "), 4)[3].trim()
+        line = line.split(Pattern.compile(" "), 4)[3].trim().replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
