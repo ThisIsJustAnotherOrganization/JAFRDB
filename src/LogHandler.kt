@@ -18,7 +18,7 @@ var tailerStopped = false
 
 
 class listener : TailerListenerAdapter(){
-    val ratsigRegex = ("RATSIGNAL.*CMDR\\s\\02?(.*?)\\02?\\s\\-.*System\\72\\s\\02?(.*?)(?:\\s[Ss][Yy][Ss][Tt][Ee][Mm])?\\02?\\s\\(.*Platform\\72\\s\\02?(?:\\03\\d\\d)?(\\w+).*O2\\72\\s\\02?(?:\\03\\d\\d)?((?:NOT\\s)?OK).*Language\\72\\s.*\\((..).*\\(Case\\s#(\\d*)\\)").toRegex()
+    val ratsigRegex = (config.keyword.toUpperCase() + """.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)""").toRegex()
     //regex at https://regex101.com/r/Vjtkxk/4
 
     var stackFile = PrintStream(File("stacktrace.log"))
