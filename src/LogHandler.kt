@@ -28,7 +28,7 @@ class listener : TailerListenerAdapter(){
 
     override fun handle(l: String?) {
         try {
-            if (l == null || l == ""){return}
+            if (l.length < 1){return}
             var valid : Boolean = false
             supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
             if (config.ClientType.isBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
