@@ -1,6 +1,5 @@
 import Trilean.FALSE
 import Trilean.TRUE
-import jcurses.system.Toolkit
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
 import java.io.File
@@ -32,7 +31,7 @@ class listener : TailerListenerAdapter(){
             if (l == null || l == ""){return}
             var valid : Boolean = false
             supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
-            if (config.ClientType.isNullOrBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
+            if (config.ClientType.isBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
             if (!valid) throw IllegalStateException("clientType not supported")
             this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
         } catch(e: Exception) {
@@ -46,14 +45,14 @@ class listener : TailerListenerAdapter(){
         var line: String = l!!//.replace("\t", " ", true)
         line = line.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 5)[3].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 5)[4].trim()
+        line = line.split(Pattern.compile(" "), 5)[4].trim().strip()
         handleMessage(nick, line)
     }
 
     fun mirc(l : String?){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 3)[2].trim().replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        line = line.split(Pattern.compile(" "), 3)[2].trim().strip()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
@@ -61,7 +60,7 @@ class listener : TailerListenerAdapter(){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 4)[2].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         if (nick == "-!-") return
-        line = line.split(Pattern.compile(" "), 4)[3].trim().replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        line = line.split(Pattern.compile(" "), 4)[3].trim().strip()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
@@ -220,7 +219,7 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.contains("fr-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = FALSE }
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = FALSE; beep() }
                     }
 
                     if (message.contains("wr+")) {
@@ -228,7 +227,7 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.contains("wr-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE }
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = FALSE; beep() }
                     }
 
                     if (message.contains("beacon+") || message.contains("bc+")) {
@@ -236,7 +235,7 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.contains("beacon-") || message.contains("bc-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE }
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE; beep() }
                     }
 
                     if (message.contains("sys+")) {
@@ -248,8 +247,8 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.contains("inst-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE }
-                        Toolkit.beep()
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE; beep()}
+                        beep()
                     }
 
                     if (message.contains("inst+")) {
@@ -257,7 +256,7 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.startsWith("int") || message.contains("interdic")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = TRUE }
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = TRUE; beep() }
                     }
 
                     if (message.contains("clear")){

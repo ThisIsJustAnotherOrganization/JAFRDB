@@ -21,3 +21,13 @@ val inpThr : Thread = Thread(fun (){
         listen.handleMessage(nick, line)
     }
 })
+
+//Thanks to RosettaCode.org for this code fragment
+fun String.strip(extendedChars : Boolean = false) : String{
+    val sb = StringBuilder()
+    for (c in this) {
+        val i = c.toInt()
+        if (i in 32..126 || (!extendedChars && i >= 128)) sb.append(c)
+    }
+    return sb.toString()
+}

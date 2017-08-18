@@ -136,6 +136,7 @@ fun times(i : Int, function: (i : Int) -> Unit){
 
 
 }
+fun beep(){ print(7.toChar())}
 enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
 
 
