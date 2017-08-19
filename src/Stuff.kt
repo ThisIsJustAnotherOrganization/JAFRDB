@@ -23,11 +23,28 @@ val inpThr : Thread = Thread(fun (){
 })
 
 //Thanks to RosettaCode.org for this code fragment
-fun String.strip(extendedChars : Boolean = false) : String{
+fun String.stripOld(extendedChars : Boolean = false) : String{
     val sb = StringBuilder()
     for (c in this) {
         val i = c.toInt()
         if (i in 32..126 || (!extendedChars && i >= 128)) sb.append(c)
+    }
+    return sb.toString()
+}
+
+fun String.strip() : String{
+    val sb = StringBuilder()
+    var f3 = false
+    for (c in this.toCharArray()){
+        if (c == 2.toChar()){continue} //STX
+        if (c == 3.toChar()){f3 = true; continue} //ETX
+        if (f3){
+            if (c.toInt() in 48..57){
+                continue
+            }
+            f3 = false
+        }
+        sb.append(c)
     }
     return sb.toString()
 }
