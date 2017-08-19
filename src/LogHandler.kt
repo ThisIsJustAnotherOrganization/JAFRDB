@@ -45,14 +45,14 @@ class listener : TailerListenerAdapter(){
         var line: String = l!!//.replace("\t", " ", true)
         line = line.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 5)[3].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 5)[4].trim().strip()
+        line = line.split(Pattern.compile(" "), 5)[4].trim()
         handleMessage(nick, line)
     }
 
     fun mirc(l : String?){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
-        line = line.split(Pattern.compile(" "), 3)[2].trim().strip()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        line = line.split(Pattern.compile(" "), 3)[2].trim()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
@@ -60,7 +60,7 @@ class listener : TailerListenerAdapter(){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 4)[2].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&
         if (nick == "-!-") return
-        line = line.split(Pattern.compile(" "), 4)[3].trim().strip()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
+        line = line.split(Pattern.compile(" "), 4)[3].trim()//.replace("[\\x02\\x1F\\x0F\\x16]|\\x03(\\d\\d?(,\\d\\d?)?)?".toRegex(), "")
         handleMessage(nick, line)
     }
 
@@ -80,7 +80,7 @@ class listener : TailerListenerAdapter(){
 
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
-        var message = message
+        var message = message.strip()
         try{
             if (message.toCharArray()[0] == '!'){
                 //handle Mecha comm
