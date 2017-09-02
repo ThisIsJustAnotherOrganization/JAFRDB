@@ -1,10 +1,10 @@
-import Trilean.FALSE
-import Trilean.TRUE
+import Trilean.*
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
 import java.io.File
 import java.io.PrintStream
 import java.lang.Exception
+import java.util.*
 import java.util.regex.Pattern
 
 var LogFile : File = File(config.LogPath)
@@ -93,7 +93,7 @@ class listener : TailerListenerAdapter(){
                         rt.split(" ").mapTo(rats) { Rat(it, Status("")) }
                         if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
                             number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.rats.addAll(rats)}
+                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it)})}
                         }
                         else{
                             rescues.filter { it.client == number }.forEach { it.rats.addAll(rats) }
@@ -227,7 +227,7 @@ class listener : TailerListenerAdapter(){
                     }
 
                     if (message.contains("wr-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = FALSE; beep() }
+                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = NEUTRAL; beep() }
                     }
 
                     if (message.contains("beacon+") || message.contains("bc+")) {
