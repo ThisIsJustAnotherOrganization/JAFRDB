@@ -22,7 +22,6 @@ class listener : TailerListenerAdapter(){
     //regex at https://regex101.com/r/Vjtkxk/4
 
     var stackFile = PrintStream(File("stacktrace.log"))
-
     override fun init(tailer: Tailer?) {
     }
 
@@ -190,6 +189,7 @@ class listener : TailerListenerAdapter(){
             else {
                 if (message.startsWith(config.keyword.toUpperCase())){
                     //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
+                    //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)
                /* val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
                 val name : String = matches.get(1)?.value ?: ""
                 val system : String = matches.get(2)?.value ?: ""
@@ -200,12 +200,14 @@ class listener : TailerListenerAdapter(){
 
                     val parts = message.split(" - ")
                     if (parts.size >= 6) {
-                        val name: String = parts[1].replace("CMDR ", "")
+                        var name: String = parts[1].replace("CMDR ", "")
                         val system: String = parts[2].replace("System: ", "").split("(")[0]
                         val platform: String = parts[3].replace("Platform: ", "")
                         val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
                         val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
                         val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
+
+                        if (message.contains("IRC Nickname:")){name = parts.last().replace("IRC Nickname:", "").replace("(Case #", "").replace(")", "").trim()}
 
 
                         rescues.add(Rescue(name, System(system), lang, number, platform, cr))

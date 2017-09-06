@@ -41,6 +41,7 @@ fun saveConfig(){
     tmp.add("logpath: " + config.LogPath)
     tmp.add("clienttype: " + config.ClientType)
     tmp.add("keyword: " + config.keyword)
+    tmp.add("beep: " + config.beep.toString())
     IOUtils.writeLines(tmp, null, stream, Charset.defaultCharset())
     stream.flush()
     stream.close()

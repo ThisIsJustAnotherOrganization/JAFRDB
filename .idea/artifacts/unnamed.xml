@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact name="unnamed">
+    <output-path>$PROJECT_DIR$/out/artifacts/unnamed</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/build/libs/run.bat" />
+      <element id="file-copy" path="$PROJECT_DIR$/build/libs/jafrdb.jar" />
+    </root>
+  </artifact>
+</component>
