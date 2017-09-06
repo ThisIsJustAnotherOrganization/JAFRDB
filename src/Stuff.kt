@@ -18,7 +18,7 @@ val inpThr : Thread = Thread(fun (){
             nick = line.replace("nick: ", "").split(Pattern.compile(" "), 2).first()
             line.replace("nick: " + nick, "").trim()
         }
-        listen.handleMessage(nick, line)
+        listenfr.handleMessage(nick, line)
     }
 })
 

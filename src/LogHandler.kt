@@ -7,17 +7,21 @@ import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
 
-var LogFile : File = File(config.LogPath)
-val listen = listener()
-val tailer = Tailer.create(LogFile, listen, 20, true)
+var LogFilefr: File = File(config.LogPathFr)
+var LogFileRc = File(config.LogPathRc)
+val listenfr = listener()
+val listenrc = rclistener()
+val tailerfr = Tailer.create(LogFilefr, listenfr, 20, true)
+val tailerrc = Tailer.create(LogFileRc, listenrc, 20, true)
 
 enum class supportedClients{hexchat, mirc, ii}
 
 
-var tailerStopped = false
+var frtailerStopped = false
+var rctailerStopped = false
 
 
-class listener : TailerListenerAdapter(){
+open class listener : TailerListenerAdapter(){
     val ratsigRegex = (config.keyword.toUpperCase() + """.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)""").toRegex()
     //regex at https://regex101.com/r/Vjtkxk/4
 
@@ -304,13 +308,20 @@ class listener : TailerListenerAdapter(){
     }
 
     override fun handle(ex: Exception?) {
-        tailerStopped = true
+        frtailerStopped = true
         //toPrint.add(ex?.toString()!!)
         ex!!.printStackTrace(stackFile)
     }
 
     override fun fileNotFound() {
         toPrint.add("File Not Found")
-        tailer.stop()
+        tailerfr.stop()
+    }
+}
+
+class rclistener : listener() {
+     override fun handle(ex: Exception?) {
+        rctailerStopped = true
+        ex!!.printStackTrace(stackFile)
     }
 }

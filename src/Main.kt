@@ -10,7 +10,8 @@ fun main(args: Array<String>) {
     initConfig()
     readConfig()
     saveConfig()
-    tailer.delay
+    tailerfr.delay
+    tailerrc.delay
     Toolkit.init()
     Toolkit.clearScreen(color)
     color.foreground = CharColor.CYAN
@@ -25,10 +26,15 @@ val tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
 
 
 fun checkTailer(task : TimerTask) {
-    if (tailerStopped){
-        tailerStopped = false
-        tailer.run()
+    if (frtailerStopped){
+        frtailerStopped = false
+        tailerfr.run()
     }
+    if (rctailerStopped){
+        rctailerStopped = false
+        tailerrc.run()
+    }
+
 }
 
 @Volatile
