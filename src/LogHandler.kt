@@ -96,10 +96,10 @@ open class listener : TailerListenerAdapter(){
                         rt.split(" ").mapTo(rats) { Rat(it, Status("")) }
                         if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
                             number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it)})}
+                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it) && it.name.isNotBlank()})}
                         }
                         else{
-                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it)})}
+                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it) && it.name.isNotBlank()})}
                         }
                     }
 
@@ -205,6 +205,7 @@ open class listener : TailerListenerAdapter(){
             else {
                 if (message.startsWith(config.keyword.toUpperCase())){
                     //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
+                    //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                     //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)
                /* val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
                 val name : String = matches.get(1)?.value ?: ""
@@ -216,7 +217,7 @@ open class listener : TailerListenerAdapter(){
 
                     val parts = message.split(" - ")
                     if (parts.size >= 6) {
-                        var name: String = parts[1].replace("Incoming Client:  ", "")
+                        var name: String = parts[1].replace("CMDR ", "")
                         val system: String = parts[2].replace("System: ", "").split("(")[0]
                         val platform: String = parts[3].replace("Platform: ", "")
                         val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
