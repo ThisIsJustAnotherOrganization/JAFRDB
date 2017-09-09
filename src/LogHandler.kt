@@ -204,14 +204,15 @@ open class listener : TailerListenerAdapter(){
 
                     val parts = message.split(" - ")
                     if (parts.size >= 6) {
-                        var name: String = parts[1].replace("CMDR ", "")
+                        var name: String = parts[1].replace("Incoming Client:  ", "")
                         val system: String = parts[2].replace("System: ", "").split("(")[0]
                         val platform: String = parts[3].replace("Platform: ", "")
                         val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
                         val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
                         val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
 
-                        if (message.contains("IRC Nickname:")){name = parts.last().replace("IRC Nickname:", "").replace("(Case #", "").replace(")", "").trim()}
+
+                        if (message.contains("IRC Nickname:")){name = parts.last().replace("IRC Nickname:", "").trim().split(" ")[0]}
 
 
                         rescues.add(Rescue(name, System(system), lang, number, platform, cr))
@@ -317,6 +318,7 @@ open class listener : TailerListenerAdapter(){
         toPrint.add("File Not Found")
         tailerfr.stop()
     }
+
 }
 
 class rclistener : listener() {
