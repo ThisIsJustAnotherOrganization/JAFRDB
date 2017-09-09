@@ -88,8 +88,9 @@ open class listener : TailerListenerAdapter(){
         try{
 
             if (message == "DEBUG"){
-
-                FileUtils.writeLines(File("debug.log"), rescues.asStringArray())
+                val file = File("debug.log")
+                if (!file.exists()) file.createNewFile()
+                FileUtils.writeLines(file, rescues.asStringArray())
             }
 
             if (message.toCharArray()[0] == '!'){
