@@ -43,10 +43,16 @@ fun String.reduce() : String{
     val charr = this.toCharArray().toMutableList()
     val sb = StringBuilder()
     for ((i, c) in charr.withIndex()){
-       if (charr.lastIndex < i && c == ' ' && charr[i+1] == ' '){
+       if (i+1 < charr.lastIndex && c == ' ' && charr[i+1] == ' '){
            charr.removeAt(i+1)
        }
     }
     charr.forEach { sb.append(it) }
     return sb.toString()
+}
+
+fun ArrayList<Rescue>.asStringArray(): ArrayList<String> {
+    var retV = ArrayList<String>()
+    this.mapTo(retV) { it.number.toString() + "|" + it.client + "|" + it.language + "|" + it.clientSystem.name + "|" + it.platform + "|" + it.active.toString() }
+    return retV;
 }

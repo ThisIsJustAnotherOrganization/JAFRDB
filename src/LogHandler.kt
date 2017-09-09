@@ -1,4 +1,5 @@
 import Trilean.*
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
 import java.io.File
@@ -85,6 +86,12 @@ open class listener : TailerListenerAdapter(){
         @Suppress("NAME_SHADOWING")
         var message = message.strip().reduce()
         try{
+
+            if (message == "DEBUG"){
+
+                FileUtils.writeLines(File("debug.log"), rescues.asStringArray())
+            }
+
             if (message.toCharArray()[0] == '!'){
                 //handle Mecha comm
                 when(message.split(Pattern.compile(" "), 2)[0]){
@@ -223,7 +230,6 @@ open class listener : TailerListenerAdapter(){
                         val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
                         val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
                         val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
-
 
                         if (message.contains("IRC Nickname:")){name = parts.last().replace("IRC Nickname:", "").trim().split(" ")[0]}
 
