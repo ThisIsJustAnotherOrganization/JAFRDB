@@ -83,7 +83,7 @@ open class listener : TailerListenerAdapter(){
 
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
-        var message = message.strip()
+        var message = message.strip().reduce()
         try{
             if (message.toCharArray()[0] == '!'){
                 //handle Mecha comm
@@ -99,7 +99,7 @@ open class listener : TailerListenerAdapter(){
                             rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it)})}
                         }
                         else{
-                            rescues.filter { it.client == number }.forEach { it.rats.addAll(rats) }
+                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it)})}
                         }
                     }
 
@@ -186,6 +186,18 @@ open class listener : TailerListenerAdapter(){
                             rescues.filter { it.client == number }.forEach { it.active = !it.active }
                         }
 
+                    }
+
+                    //actually not in Mecha
+                    "!changenumber", "!cn" -> {
+                        var number = message.split(" ")[1]
+                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
+                            number = getNumber(number)
+                            rescues.filter { it.number == number.toInt() }.forEach { it.number = message.split(" ")[2].toInt()}
+                        }
+                        else{
+                            rescues.filter { it.client == number }.forEach { it.number = message.split(" ")[2].toInt() }
+                        }
                     }
 
                 }
