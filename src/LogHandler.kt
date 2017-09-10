@@ -4,6 +4,7 @@ import org.apache.commons.io.input.Tailer
 import org.apache.commons.io.input.TailerListenerAdapter
 import java.io.File
 import java.io.PrintStream
+import java.io.PrintWriter
 import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
@@ -84,12 +85,13 @@ open class listener : TailerListenerAdapter(){
 
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
-        var message = message.strip().reduce()
+        var message = message.strip()//.reduce()
         try{
 
             if (message == "DEBUG"){
                 val file = File("debug.log")
                 if (!file.exists()) file.createNewFile()
+                PrintWriter(file.path).close()
                 FileUtils.writeLines(file, rescues.asStringArray())
             }
 
