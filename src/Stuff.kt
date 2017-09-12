@@ -42,12 +42,9 @@ fun String.strip() : String{
 fun String.reduce() : String{
     val charr = this.toCharArray().toMutableList()
     val sb = StringBuilder()
-    for ((i, c) in charr.withIndex()){
-       if (i+1 < charr.lastIndex && c == ' ' && charr[i+1] == ' '){
-           charr.removeAt(i+1)
-       }
-    }
-    charr.forEach { sb.append(it) }
+    charr
+            .filterIndexed { i, c -> charr.lastIndex > i && !(c == ' ' && charr[i + 1] == ' ') }
+            .forEach { sb.append(it) }
     return sb.toString()
 }
 

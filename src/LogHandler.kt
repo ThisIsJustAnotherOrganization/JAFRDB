@@ -85,7 +85,7 @@ open class listener : TailerListenerAdapter(){
 
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
-        var message = message.strip()//.reduce()
+        var message = message.strip().reduce()
         try{
 
             if (message == "DEBUG"){
