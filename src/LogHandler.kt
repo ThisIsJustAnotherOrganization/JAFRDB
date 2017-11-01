@@ -9,12 +9,12 @@ import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
 
-var LogFilefr: File = File(config.LogPathFr)
+var LogFilefr = File(config.LogPathFr)
 var LogFileRc = File(config.LogPathRc)
-val listenfr = listener()
-val listenrc = rclistener()
-val tailerfr = Tailer.create(LogFilefr, listenfr, 20, true)
-val tailerrc = Tailer.create(LogFileRc, listenrc, 20, true)
+val listenfr  = listener()
+val listenrc  = rclistener()
+val tailerfr  = Tailer.create(LogFilefr, listenfr, 20, true)
+val tailerrc  = Tailer.create(LogFileRc, listenrc, 20, true)
 
 enum class supportedClients{hexchat, mirc, ii}
 

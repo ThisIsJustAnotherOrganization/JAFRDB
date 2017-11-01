@@ -39,13 +39,21 @@ fun String.strip() : String{
     return sb.toString()
 }
 
-fun String.reduce() : String{
+fun String.reduceOld() : String{
     val charr = this.toCharArray().toMutableList()
     val sb = StringBuilder()
     charr
             .filterIndexed { i, c -> charr.lastIndex > i && !(c == ' ' && charr[i + 1] == ' ') }
             .forEach { sb.append(it) }
     return sb.toString()
+}
+
+fun String.reduce() : String{
+    val tmp1 = this.trim().split(" ").toMutableList()
+    tmp1.removeAll { it.trim() == "" }
+    val sb = StringBuilder()
+    tmp1.forEach{ sb.append(it + " ") }
+    return sb.toString().trim()
 }
 
 fun ArrayList<Rescue>.asStringArray(): ArrayList<String> {
