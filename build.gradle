@@ -17,6 +17,9 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-reflect"
     compile "commons-io:commons-io:2.5"
     compile "com.baulsupp.kolja:jcurses:0.9.5.3"
+    compile "com.google.code.gson:gson:2.8.2"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19"
+    compile "org.java-websocket:Java-WebSocket:1.3.5"
 }
 
 sourceSets{
