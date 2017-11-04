@@ -158,10 +158,10 @@ data class Status(var status : String){
     var instancingP: Trilean = NEUTRAL
     var interdicted: Trilean = NEUTRAL
 }
-data class Rescue(var client : String, var clientSystem : System, val language : String, var number : Int, var platform : String, var cr : Boolean){
+data class Rescue(var client : String, var clientSystem : System, val language : String, var number : Int, var platform : String, var cr : Boolean, var active : Boolean = true){
     var rats : MutableList<Rat> = ArrayList()
     var notes : MutableList<String> = ArrayList()
-    var active : Boolean = true
+   // var active : Boolean = true
 
 }
 
