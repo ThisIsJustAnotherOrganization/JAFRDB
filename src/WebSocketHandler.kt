@@ -5,9 +5,11 @@
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.Exception
 import java.net.URI
+import java.util.*
 
 
 val parser = JsonParser()
@@ -42,6 +44,21 @@ class WebSocket{
         client.send(msg)
     }
 
+    fun request(controller : String, action : String, params : Map<String, String> = emptyMap(), metaPar : Map<String, String> = emptyMap()){
+        val root = JsonObject()
+        var actionArr = JsonArray()
+        actionArr.add(controller)
+        actionArr.add(action)
+        root.add("action", actionArr)
+        params.forEach { t, u -> root.add(t, JsonPrimitive(u)) }
+        val meta = JsonObject()
+        meta.add("action", JsonPrimitive("$controller:$action"))
+        val myData = JsonObject()
+        metaPar.forEach { t, u -> myData.add(t, JsonPrimitive(u)) }
+        root.add("meta", meta)
+        client.send(root.toString())
+    }
+
 
 }
 
@@ -62,6 +79,7 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
         @Suppress("NAME_SHADOWING")
         var message : String = message
         println("message: " + message)
+        handleWSMessage(message)
     }
 
     override fun onError(ex: Exception?) {
@@ -73,11 +91,14 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
 fun handleWSMessage(msg: String){
     val origElement = parser.parse(msg)
     var meta = origElement.asJsonObject.get("meta").asJsonObject
+    if (meta.asJsonObject.has("event")) return
+
     var data = origElement.asJsonObject.get("data").asJsonArray
 
-    when (meta.get("action").asString){
-        "rescues:read" -> { parseRescueRead(meta, data) }
 
+    when (meta.get("action").asString){
+        "rescues:read" -> parseRescueRead(meta, data)
+        "rats:read" -> parseRatNameResolution(meta, data)
     }
 
 }
@@ -86,9 +107,9 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
     data.forEach {
         if (it.asJsonObject.get("type").asString != "rescues") return@forEach
         val attributes : JsonObject = it.asJsonObject.get("attributes").asJsonObject
-        val name = attributes.get("IRCNick").asString
+        val name = attributes.get("data").asJsonObject.get("IRCNick").asString
         val cr = attributes.get("codeRed").asBoolean
-        val system = System(attributes.get("system").asString)
+        val system = if (!attributes.get("system").isJsonNull) System(attributes.get("system").asString) else System("null")
         val lang = attributes.get("data").asJsonObject.get("langID").asString
         val number = attributes.get("data").asJsonObject.get("boardIndex").asInt
         val platform = attributes.get("platform").asString
@@ -98,7 +119,40 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
                 "open" -> true
                 else -> return@forEach
             }
-
-        rescues.add(Rescue(name, system, lang, number, platform, cr, active))
+        val resc = Rescue(name, system, lang, number, platform, cr, active)
+        it.asJsonObject
+                .get("relationships").asJsonObject
+                .get("rats").asJsonObject
+                .get("data").asJsonArray
+                .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status(""))) }
+        attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status(""))) }
+        println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
+        rescues.add(resc)
     }
+}
+
+fun parseRatNameResolution(meta: JsonObject, data : JsonArray){
+    val uuid = meta.get("mydata").asJsonObject.get("uuid").asString
+    if (resolvMap.get(uuid) == "") return
+    resolvMap.put(uuid, data[0].asJsonObject.get("attributes").asJsonObject.get("name").asString)
+}
+
+
+val resolvMap = mutableMapOf<String, String>()
+
+fun resolveRatName(id: String): String {
+    val args = mutableMapOf<String, String>()
+    val metaArgs = mutableMapOf<String, String>()
+    var ranId = UUID.randomUUID().toString()
+    while (resolvMap.contains(ranId)) {
+        ranId = UUID.randomUUID().toString()
+    }
+    metaArgs.put("uuid", ranId)
+    resolvMap.put(ranId, "")
+    args.put("id", id)
+    WebSocket.instance().request("rats", "read", args, metaArgs)
+    while (resolvMap[ranId].isNullOrBlank()){}
+    val name = resolvMap[ranId]!!
+    resolvMap.remove(ranId)
+    return name
 }

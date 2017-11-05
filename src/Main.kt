@@ -1,6 +1,7 @@
 import Trilean.*
 import jcurses.system.CharColor
 import jcurses.system.Toolkit
+import kotlinx.coroutines.experimental.launch
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
@@ -17,8 +18,13 @@ fun main(args: Array<String>) {
     color.foreground = CharColor.CYAN
 
     //always last call
-    inpThr.run()
+    launch{inpThr.run()}
+    launch{
+        WebSocket.instance().init()
+        WebSocket.instance().request("rescues", "read")
+    }
 
+    while(true);
 
 }
 val screenupdate = fixedRateTimer("ScreenUpdater", false, 500, 1000, ::updateScreen)
@@ -48,10 +54,10 @@ fun updateScreen(timerTask: TimerTask) {
     Toolkit.printString("Cases: ", 2, 1, blackwhite)
     linecount = printRescues()
 
-    for (str in toPrint){
-        Toolkit.printString(str, 0, linecount + 2, blackwhite)
-        linecount++
-    }
+//    for (str in toPrint){
+  //      Toolkit.printString(str, 0, linecount + 2, blackwhite)
+    //    linecount++
+    //}
 
 }
 
