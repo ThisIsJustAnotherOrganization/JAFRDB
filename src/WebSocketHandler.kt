@@ -6,6 +6,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
+import kotlinx.coroutines.experimental.launch
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.Exception
 import java.net.URI
@@ -29,10 +30,10 @@ class WebSocket{
 
 
     suspend fun init(){
-        client = WebSocketClient(URI("wss://dev.api.fuelrats.com?bearer=d9dd8c0d59feadf41abad9dd643c90b77d091d7cbc596f92ef11421127d99dc6"))
-        println("Connecting blocking")
+        client = WebSocketClient(URI("wss://api.fuelrats.com"))
+        //println("Connecting blocking")
         client.connectBlocking()
-        println("Connected")
+        //println("Connected")
 
         // delay(2000)
         //while (!client.isOpen){}
@@ -55,6 +56,7 @@ class WebSocket{
         meta.add("action", JsonPrimitive("$controller:$action"))
         val myData = JsonObject()
         metaPar.forEach { t, u -> myData.add(t, JsonPrimitive(u)) }
+        meta.add("mydata", myData)
         root.add("meta", meta)
         client.send(root.toString())
     }
@@ -64,21 +66,21 @@ class WebSocket{
 
 class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri){
     override fun onOpen(handshakedata: ServerHandshake?) {
-        println("Opening Connection")
+        //println("Opening Connection")
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {
-        println("Closing Connection, reason: $reason , $code")
+        //println("Closing Connection, reason: $reason , $code")
     }
 
     override fun onMessage(message: String?) {
         if (message == null){
-            println("message was null")
+            //println("message was null")
             return
         }
         @Suppress("NAME_SHADOWING")
         var message : String = message
-        println("message: " + message)
+        //println("message: " + message)
         handleWSMessage(message)
     }
 
@@ -105,35 +107,42 @@ fun handleWSMessage(msg: String){
 
 fun parseRescueRead(meta: JsonObject, data : JsonArray){
     data.forEach {
-        if (it.asJsonObject.get("type").asString != "rescues") return@forEach
-        val attributes : JsonObject = it.asJsonObject.get("attributes").asJsonObject
-        val name = attributes.get("data").asJsonObject.get("IRCNick").asString
-        val cr = attributes.get("codeRed").asBoolean
-        val system = if (!attributes.get("system").isJsonNull) System(attributes.get("system").asString) else System("null")
-        val lang = attributes.get("data").asJsonObject.get("langID").asString
-        val number = attributes.get("data").asJsonObject.get("boardIndex").asInt
-        val platform = attributes.get("platform").asString
-        val active : Boolean =
-            when (attributes.get("status").asString){
-                "inactive" -> false
-                "open" -> true
-                else -> return@forEach
+        launch {
+            if (it.asJsonObject.get("type").asString != "rescues") {
+                /* println("not a rescue: " + it.asJsonObject.get("id").asString.subSequence(0, 7)); */return@launch
             }
-        val resc = Rescue(name, system, lang, number, platform, cr, active)
-        it.asJsonObject
-                .get("relationships").asJsonObject
-                .get("rats").asJsonObject
-                .get("data").asJsonArray
-                .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status(""))) }
-        attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status(""))) }
-        println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
-        rescues.add(resc)
+            val attributes: JsonObject = it.asJsonObject.get("attributes").asJsonObject
+            val name = attributes.get("data").asJsonObject.get("IRCNick").asString
+            val cr = attributes.get("codeRed").asBoolean
+            val system = if (!attributes.get("system").isJsonNull) System(attributes.get("system").asString) else System("null")
+            val lang = attributes.get("data").asJsonObject.get("langID").asString
+            val number = attributes.get("data").asJsonObject.get("boardIndex").asInt
+            val platform = attributes.get("platform").asString
+            val active: Boolean =
+                    when (attributes.get("status").asString) {
+                        "inactive" -> false
+                        "open" -> true
+                        else -> {
+                            /*println("Rescue state neither inactive or open: " + it.asJsonObject.get("id").asString.subSequence(0, 7)); */return@launch
+                        }
+                    }
+            val resc = Rescue(name, system, lang, number, platform, cr, active)
+            it.asJsonObject
+                    .get("relationships").asJsonObject
+                    .get("rats").asJsonObject
+                    .get("data").asJsonArray
+                    .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status(""))) }
+            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status(""))) }
+            //println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
+            rescues.add(resc)
+
+        }
     }
 }
 
 fun parseRatNameResolution(meta: JsonObject, data : JsonArray){
     val uuid = meta.get("mydata").asJsonObject.get("uuid").asString
-    if (resolvMap.get(uuid) == "") return
+    if (resolvMap.get(uuid) != "") return
     resolvMap.put(uuid, data[0].asJsonObject.get("attributes").asJsonObject.get("name").asString)
 }
 
@@ -154,5 +163,6 @@ fun resolveRatName(id: String): String {
     while (resolvMap[ranId].isNullOrBlank()){}
     val name = resolvMap[ranId]!!
     resolvMap.remove(ranId)
+    //println("resolved $id to $name")
     return name
 }
