@@ -131,8 +131,8 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
                     .get("relationships").asJsonObject
                     .get("rats").asJsonObject
                     .get("data").asJsonArray
-                    .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status(""))) }
-            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status(""))) }
+                    .forEach { resc.rats.add(Rat(resolveRatName(""), Status("")).setNameCorrectly(it.asJsonObject.get("id").asString)) }
+            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat("", Status("")).setNameCorrectly(it.asString)) }
             //println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
             rescues.add(resc)
 

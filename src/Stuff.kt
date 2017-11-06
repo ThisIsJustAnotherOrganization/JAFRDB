@@ -1,3 +1,4 @@
+import jcurses.system.PlatformUtil
 import jcurses.system.Toolkit
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
@@ -60,4 +61,14 @@ fun ArrayList<Rescue>.asStringArray(): ArrayList<String> {
     var retV = ArrayList<String>()
     this.mapTo(retV) { it.number.toString() + "|" + it.client + "|" + it.language + "|" + it.clientSystem.name + "|" + it.platform + "|" + it.active.toString() }
     return retV;
+}
+
+fun getLibraryName() : String{
+    var library: String? = null
+    when {
+        PlatformUtil.isWindowsX86() -> library = "/META-INF/windows-x86/libjcurses.dll"
+        PlatformUtil.isMacOsx() -> library = "/META-INF/osx/libjcurses.jnilib"
+        PlatformUtil.isLinuxX86() -> library = "/META-INF/linux-x86/libjcurses.so"
+    }
+    return library!!
 }

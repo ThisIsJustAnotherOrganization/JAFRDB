@@ -86,138 +86,136 @@ open class listener : TailerListenerAdapter(){
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
         var message = message.strip().reduce()
-        try{
+        try {
 
-            if (message == "DEBUG"){
+            if (message == "DEBUG") {
                 val file = File("debug.log")
                 if (!file.exists()) file.createNewFile()
                 PrintWriter(file.path).close()
                 FileUtils.writeLines(file, rescues.asStringArray())
             }
 
-            if (message.toCharArray()[0] == '!'){
-                //handle Mecha comm
-                when(message.split(Pattern.compile(" "), 2)[0]){
-                    "!go", "!assign" -> {
-                        var number = message.split(" ")[1]
-                        if (message.split(Pattern.compile(" "), 3).size < 3) return
-                        val rt = message.split(Pattern.compile(" "), 3)[2]
-                        var rats = ArrayList<Rat>()
-                        rt.split(" ").mapTo(rats) { Rat(it, Status("")) }
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it) && it.name.isNotBlank()})}
-                        }
-                        else{
-                            rescues.filter { it.number == number.toInt() }.forEach {val tmp = it.rats; it.rats.addAll(rats.filter{!tmp.contains(it) && it.name.isNotBlank()})}
-                        }
-                    }
-
-                    "!unassign" -> {
-                        var number = message.split(" ")[1]
-                        val rt = message.split(Pattern.compile(" "), 3)[2]
-                        var rats = ArrayList<Rat>()
-                        rt.split(" ").mapTo(rats) { Rat(it, Status("")) }
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-
-                            rescues.filter { it.number == number.toInt() }.forEach { it.rats.removeAll(rats)}
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.rats.removeAll(rats) }
-                        }
-                    }
-
-                    "!clear", "!close", "!md" -> {
-                        var number = message.split(" ")[1]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { rescues.remove(it) }
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { rescues.remove(it) }
-                        }
-                    }
-
-                    "!cr" -> {
-                        var number = message.split(" ")[1]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.cr = !it.cr }
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.cr = !it.cr }
-                        }
-
-                    }
-
-                    "!sys", "!system" -> {
-                        var number = message.split(" ")[1]
-                        val sys = message.split(Pattern.compile(" "), 3)[2]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.clientSystem.name = sys }
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.clientSystem.name = sys }
-                        }
-                    }
-                    "!cmdr", "!commander" -> {
-                        var number = message.split(" ")[1]
-                        val cmdr = message.split(Pattern.compile(" "), 3)[2]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.client = cmdr }
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.client = cmdr }
-                        }
-                    }
-
-                    "!xb", "!ps", "!pc" -> {
-                        var number = message.split(" ")[1]
-                        val platform = message.split(Pattern.compile(" "), 3)[0].replace("!", "")
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.platform = platform}
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.platform = platform }
-                        }
-                    }
-
-                    "!active", "!inactive" -> {
-                        var number = message.split(" ")[1]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.active = !it.active }
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.active = !it.active }
-                        }
-
-                    }
-
-                    //actually not in Mecha
-                    "!changenumber", "!cn" -> {
-                        var number = message.split(" ")[1]
-                        if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null){
-                            number = getNumber(number)
-                            rescues.filter { it.number == number.toInt() }.forEach { it.number = message.split(" ")[2].toInt()}
-                        }
-                        else{
-                            rescues.filter { it.client == number }.forEach { it.number = message.split(" ")[2].toInt() }
-                        }
-                    }
+            if (nick.toLowerCase() == "internal") {
+                if (message.contains("quit", true)){
 
                 }
+
+                return
             }
             else {
-                if (message.startsWith(config.keyword.toUpperCase())){
-                    //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
-                    //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
-                    //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)
-               /* val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
+                if (message.toCharArray()[0] == '!') {
+                    //handle Mecha comm
+                    when (message.split(" ", limit = 2)[0]) {
+                        "!go", "!assign" -> {
+                            var number = message.split(" ")[1]
+                            if (message.split(" ", limit = 3).size < 3) return
+                            val rt = message.split(" ", limit = 3)[2]
+                            var rats = ArrayList<Rat>()
+                            rt.split(" ").mapTo(rats) { Rat("", Status("")).setNameCorrectly(it) }
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { val tmp = it.rats; it.rats.addAll(rats.filter { !tmp.contains(it) && it.name.isNotBlank() }) }
+                            } else {
+                                rescues.filter { it.number == number.toInt() }.forEach { val tmp = it.rats; it.rats.addAll(rats.filter { !tmp.contains(it) && it.name.isNotBlank() }) }
+                            }
+                        }
+
+                        "!unassign" -> {
+                            var number = message.split(" ")[1]
+                            val rt = message.split(" ", limit = 3)[2]
+                            var rats = ArrayList<Rat>()
+                            rt.split(" ").mapTo(rats) { Rat("", Status("")).setNameCorrectly(it) }
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+
+                                rescues.filter { it.number == number.toInt() }.forEach { it.rats.removeAll(rats) }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.rats.removeAll(rats) }
+                            }
+                        }
+
+                        "!clear", "!close", "!md" -> {
+                            var number = message.split(" ")[1]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { rescues.remove(it) }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { rescues.remove(it) }
+                            }
+                        }
+
+                        "!cr" -> {
+                            var number = message.split(" ")[1]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.cr = !it.cr }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.cr = !it.cr }
+                            }
+
+                        }
+
+                        "!sys", "!system" -> {
+                            var number = message.split(" ")[1]
+                            val sys = message.split(" ", limit = 3)[2]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.clientSystem.name = sys }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.clientSystem.name = sys }
+                            }
+                        }
+                        "!cmdr", "!commander" -> {
+                            var number = message.split(" ")[1]
+                            val cmdr = message.split(" ", limit = 3)[2]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.client = cmdr }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.client = cmdr }
+                            }
+                        }
+
+                        "!xb", "!ps", "!pc" -> {
+                            var number = message.split(" ")[1]
+                            val platform = message.split(" ", limit = 3)[0].replace("!", "")
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.platform = platform }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.platform = platform }
+                            }
+                        }
+
+                        "!active", "!inactive" -> {
+                            var number = message.split(" ")[1]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.active = !it.active }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.active = !it.active }
+                            }
+
+                        }
+
+                    //actually not in Mecha
+                        "!changenumber", "!cn" -> {
+                            var number = message.split(" ")[1]
+                            if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
+                                number = getNumber(number)
+                                rescues.filter { it.number == number.toInt() }.forEach { it.number = message.split(" ")[2].toInt() }
+                            } else {
+                                rescues.filter { it.client == number }.forEach { it.number = message.split(" ")[2].toInt() }
+                            }
+                        }
+
+                    }
+                } else {
+                    if (message.startsWith(config.keyword.toUpperCase())) {
+                        //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
+                        //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
+                        //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)
+                        /* val matches : MatchGroupCollection = ratsigRegex.matchEntire(message)?.groups!!
                 val name : String = matches.get(1)?.value ?: ""
                 val system : String = matches.get(2)?.value ?: ""
                 val platform : String = matches.get(3)?.value ?: ""
@@ -225,75 +223,77 @@ open class listener : TailerListenerAdapter(){
                 val lang : String = matches.get(5)?.value ?: ""
                 val number : Int = matches.get(6)?.value?.toInt() ?: -1*/
 
-                    val parts = message.split(" - ")
-                    if (parts.size >= 6) {
-                        var name: String = parts[1].replace("CMDR ", "")
-                        val system: String = parts[2].replace("System: ", "").split("(")[0]
-                        val platform: String = parts[3].replace("Platform: ", "")
-                        val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
-                        val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
-                        val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
+                        val parts = message.split(" - ")
+                        if (parts.size >= 6) {
+                            var name: String = parts[1].replace("CMDR ", "")
+                            val system: String = parts[2].replace("System: ", "").split("(")[0]
+                            val platform: String = parts[3].replace("Platform: ", "")
+                            val cr: Boolean = parts[4].replace("O2: ", "") != "OK"
+                            val lang: String = parts[5].replace("Language: ", "").split(" ")[1].replace("(", "").replace(")", "").split("-")[0]
+                            val number: Int = getNumber(parts.last().split(" ").last()).toIntOrNull() ?: -1
 
-                        if (message.contains("IRC Nickname:")){name = parts.last().replace("IRC Nickname:", "").trim().split(" ")[0]}
+                            if (message.contains("IRC Nickname:")) {
+                                name = parts.last().replace("IRC Nickname:", "").trim().split(" ")[0]
+                            }
 
 
-                        rescues.add(Rescue(name, System(system), lang, number, platform, cr))
+                            rescues.add(Rescue(name, System(system), lang, number, platform, cr))
+                        }
+
+                    } else {
+                        message = message.toLowerCase()
+                        if (message.contains("fr+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = TRUE }
+                        }
+
+                        if (message.contains("fr-")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = FALSE; beep() }
+                        }
+
+                        if (message.contains("wr+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = TRUE }
+                        }
+
+                        if (message.contains("wr-")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = NEUTRAL; beep() }
+                        }
+
+                        if (message.contains("beacon+") || message.contains("bc+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.inSys = TRUE }
+                        }
+
+                        if (message.contains("beacon-") || message.contains("bc-")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE; beep() }
+                        }
+
+                        if (message.contains("sys+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.inSys = TRUE }
+                        }
+
+                        if (message.contains("fuel+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.fueled = TRUE }
+                        }
+
+                        if (message.contains("inst-")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE; beep() }
+                            beep()
+                        }
+
+                        if (message.contains("inst+")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = FALSE }
+                        }
+
+                        if (message.startsWith("int") || message.contains("interdic")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = TRUE; beep() }
+                        }
+
+                        if (message.contains("clear")) {
+                            getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = FALSE }
+                        }
+
+                        //TODO implement Disconnected
+
                     }
-
-                }
-                else {
-                    message = message.toLowerCase()
-                    if (message.contains("fr+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = TRUE }
-                    }
-
-                    if (message.contains("fr-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = FALSE; beep() }
-                    }
-
-                    if (message.contains("wr+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = TRUE }
-                    }
-
-                    if (message.contains("wr-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = NEUTRAL; beep() }
-                    }
-
-                    if (message.contains("beacon+") || message.contains("bc+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.inSys = TRUE }
-                    }
-
-                    if (message.contains("beacon-") || message.contains("bc-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE; beep() }
-                    }
-
-                    if (message.contains("sys+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.inSys = TRUE }
-                    }
-
-                    if (message.contains("fuel+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.fueled = TRUE }
-                    }
-
-                    if (message.contains("inst-")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE; beep()}
-                        beep()
-                    }
-
-                    if (message.contains("inst+")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = FALSE }
-                    }
-
-                    if (message.startsWith("int") || message.contains("interdic")) {
-                        getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.interdicted = TRUE; beep() }
-                    }
-
-                    if (message.contains("clear")){
-                        getCase(message, nick).rats.filter{it.name == nick}.forEach { it.status.interdicted = FALSE }
-                    }
-
-                    //TODO implement Disconnected
-
                 }
             }
         } catch(e: Exception) {

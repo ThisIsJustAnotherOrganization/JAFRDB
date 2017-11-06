@@ -152,7 +152,15 @@ fun beep(){ print(7.toChar())}
 enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
 
 
-data class Rat(var name : String, var status : Status)
+data class Rat( var name : String, var status : Status){
+    fun setNameCorrectly(value : String) : Rat {
+        name.replace(" ", "_").replaceAfter("[", "")
+        return this
+    }
+
+}
+
+
 data class System(var name : String)
 data class Status(var status : String){
     var friended : Trilean = NEUTRAL
