@@ -6,13 +6,9 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
 import com.google.api.client.http.GenericUrl
 import com.google.api.client.http.apache.ApacheHttpTransport
-import com.google.api.client.json.JsonFactory
-import com.google.api.client.json.JsonGenerator
-import com.google.api.client.json.JsonParser
 import com.google.api.client.testing.json.MockJsonFactory
 import com.google.api.client.util.store.FileDataStoreFactory
-import java.io.*
-import java.nio.charset.Charset
+import java.io.File
 
 /**
  * Created by beepbeat/holladiewal on 08.11.2017.
@@ -30,30 +26,8 @@ class AuthHandler{
     }
 }
 
-class JsonFac : JsonFactory() {
-    override fun createJsonGenerator(out: OutputStream?, enc: Charset?): JsonGenerator {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+class JsonFac : MockJsonFactory() {
 
-    override fun createJsonGenerator(writer: Writer?): JsonGenerator {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun createJsonParser(`in`: InputStream?): JsonParser {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun createJsonParser(`in`: InputStream?, charset: Charset?): JsonParser {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun createJsonParser(value: String?): JsonParser {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun createJsonParser(reader: Reader?): JsonParser {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
 }
 
