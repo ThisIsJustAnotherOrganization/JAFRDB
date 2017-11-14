@@ -1,0 +1,41 @@
+<component name="libraryTable">
+  <library name="org.dmfs:httpurlconnection-executor:0.15.1" type="repository">
+    <properties maven-id="org.dmfs:httpurlconnection-executor:0.15.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/httpurlconnection-executor-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-commons-0.15.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/httpurlconnection-executor-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.11-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.11-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.11-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-commons-0.15.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/httpurlconnection-executor-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.11-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.11-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.11-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-commons-0.15.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     while(true);
 
 }
-val screenupdate = fixedRateTimer("ScreenUpdater", false, 500, 1000, ::updateScreen)
+//val screenupdate = fixedRateTimer("ScreenUpdater", false, 500, 1000, ::updateScreen)
 val tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
 
 
@@ -47,18 +47,19 @@ fun checkTailer(task : TimerTask) {
 var toPrint = ArrayList<String>()
 
 fun updateScreen(timerTask: TimerTask) {
-    Toolkit.clearScreen(blackwhite)
-    var linecount = 0
-    //toPrint.add(Random().nextDouble().toString())
-    Toolkit.printString("Welcome to JAFRDB", Toolkit.getScreenWidth() / 2 - 17 /* welcome string length*/, 0, color)
-    Toolkit.printString("Cases: ", 2, 1, blackwhite)
-    linecount = printRescues()
+    launch {
+        Toolkit.clearScreen(blackwhite)
+        var linecount = 0
+        //toPrint.add(Random().nextDouble().toString())
+        Toolkit.printString("Welcome to JAFRDB", Toolkit.getScreenWidth() / 2 - 17 /* welcome string length*/, 0, color)
+        Toolkit.printString("Cases: ", 2, 1, blackwhite)
+        linecount = printRescues()
 
 //    for (str in toPrint){
-  //      Toolkit.printString(str, 0, linecount + 2, blackwhite)
-    //    linecount++
-    //}
-
+        //      Toolkit.printString(str, 0, linecount + 2, blackwhite)
+        //    linecount++
+        //}
+    }
 }
 
 fun printRescues() : Int{
@@ -138,6 +139,7 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
     return lineCount
 }
 val color = CharColor(CharColor.BLACK, CharColor.WHITE)
+@Volatile
 var blackwhite = CharColor(CharColor.BLACK, CharColor.WHITE)
 fun times(i : Int, function: (i : Int) -> Unit){
     var x : Int = 0

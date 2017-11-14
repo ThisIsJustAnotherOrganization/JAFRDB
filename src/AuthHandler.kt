@@ -1,33 +1,73 @@
-import com.google.api.client.auth.oauth2.AuthorizationCodeFlow
-import com.google.api.client.auth.oauth2.BearerToken
-import com.google.api.client.auth.oauth2.ClientParametersAuthentication
-import com.google.api.client.auth.oauth2.Credential
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
-import com.google.api.client.http.GenericUrl
-import com.google.api.client.http.apache.ApacheHttpTransport
-import com.google.api.client.testing.json.MockJsonFactory
-import com.google.api.client.util.store.FileDataStoreFactory
-import java.io.File
+
+import javafx.application.Application
+import javafx.scene.Scene
+import javafx.scene.layout.StackPane
+import javafx.scene.text.Text
+import javafx.stage.Stage
+import org.dmfs.httpessentials.client.HttpRequestExecutor
+import org.dmfs.httpessentials.httpurlconnection.HttpUrlConnectionExecutor
+import org.dmfs.oauth2.client.BasicOAuth2AuthorizationProvider
+import org.dmfs.oauth2.client.BasicOAuth2Client
+import org.dmfs.oauth2.client.BasicOAuth2ClientCredentials
+import org.dmfs.oauth2.client.OAuth2AccessToken
+import org.dmfs.oauth2.client.grants.AuthorizationCodeGrant
+import org.dmfs.oauth2.client.scope.BasicScope
+import org.dmfs.rfc3986.encoding.Encoded
+import org.dmfs.rfc3986.uris.LazyUri
+import org.dmfs.rfc5545.Duration
+import java.net.URI
+
 
 /**
  * Created by beepbeat/holladiewal on 08.11.2017.
  */
 
 class AuthHandler{
+    companion object {
+        lateinit var url : URI
+        var redirectUrl : String = ""
+    }
 
-    var token = BearerToken()
+    var executor: HttpRequestExecutor = HttpUrlConnectionExecutor()
+    lateinit var token : OAuth2AccessToken
 
-    fun authorize(userId : String): Credential {
-        var dataStorage = FileDataStoreFactory(File("dataStore"))
-        var flow = AuthorizationCodeFlow.Builder(BearerToken.authorizationHeaderAccessMethod(), ApacheHttpTransport(), MockJsonFactory(), GenericUrl(""), ClientParametersAuthentication(secret.clientID, secret.clientSecret ), secret.clientID, "https://dev.api.fuelrats.com/oauth2/login").setScopes(listOf("*")).setDataStoreFactory(dataStorage).build()
-        var receiver = LocalServerReceiver.Builder().setHost("localhost").setPort(12558).build()
-        return AuthorizationCodeInstalledApp(flow, receiver).authorize(userId)
+
+    fun authorize(){
+        val provider = BasicOAuth2AuthorizationProvider(URI.create("https://beta.fuelrats.com/authorize"), URI.create("https://dev.api.fuelrats.com/oauth2/token"), Duration(1,0,3600))
+        val credentials = BasicOAuth2ClientCredentials(secret.clientID, secret.clientSecret)
+        val client = BasicOAuth2Client(provider, credentials, LazyUri(Encoded("https://localhost:13370")))
+        val grant = AuthorizationCodeGrant(client, BasicScope("rescue.read", "rat.read"))
+        url = grant.authorizationUrl()!!
+        println(url)
+
+        val auth = Auth.Authenticator("")
+        Application.launch(UrlDialog().javaClass)
+        val result = auth.awaitAccessToken()
+        println("$result")
+        if (!result){
+            throw IllegalStateException("couldnt start Server " + auth.authenticationError?.name + "," + auth.authenticationError?.description)
+        }
+        while (!auth.hasAccessToken()){
+            ;
+        }
+        //token = grant.withRedirect(client.redirectUri()).accessToken(executor)
+    }
+
+
+
+}
+
+class UrlDialog : Application() {
+    override fun start(stage: Stage?) {
+        val url = AuthHandler.url.toString()
+        val root = StackPane()
+        root.children.add(Text(200.0, 32.0, url))
+        val scene = Scene(root, 800.0, 64.0)
+        stage!!.scene = scene
+        stage.show()
     }
 }
 
-class JsonFac : MockJsonFactory() {
 
 
-}
 

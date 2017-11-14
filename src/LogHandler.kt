@@ -9,8 +9,8 @@ import java.lang.Exception
 import java.util.*
 import java.util.regex.Pattern
 
-var LogFilefr = File(config.LogPathFr)
-var LogFileRc = File(config.LogPathRc)
+var LogFilefr = File(config.varMap["${entries.LogPathFr}"])
+var LogFileRc = File(config.varMap["${entries.LogPathRc}"])
 val listenfr  = listener()
 val listenrc  = rclistener()
 val tailerfr  = Tailer.create(LogFilefr, listenfr, 20, true)
@@ -24,7 +24,7 @@ var rctailerStopped = false
 
 
 open class listener : TailerListenerAdapter(){
-    val ratsigRegex = (config.keyword.toUpperCase() + """.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)""").toRegex()
+    val ratsigRegex = (config.varMap["${entries.keyword}"]!!.toUpperCase() + """.*CMDR\s\02?(.*?)\02?\s\-.*System\72\s\02?(.*?)(?:\s[Ss][Yy][Ss][Tt][Ee][Mm])?\02?\s\(.*Platform\72\s\02?(?:\03\d\d)?(\w+).*O2\72\s\02?(?:\03\d\d)?((?:NOT\s)?OK).*Language\72\s.*\((..).*\(Case\s#(\d*)\)""").toRegex()
     //regex at https://regex101.com/r/Vjtkxk/4
 
     var stackFile = PrintStream(File("stacktrace.log"))
@@ -35,10 +35,10 @@ open class listener : TailerListenerAdapter(){
         try {
             if (l == null || l.isEmpty()){return}
             var valid = false
-            supportedClients.values().forEach {if (it.toString() == config.ClientType){valid = true} }
-            if (config.ClientType.isBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
+            supportedClients.values().forEach {if (it.toString() == config.varMap["${entries.ClientType}"]){valid = true} }
+            if (config.varMap["${entries.ClientType}"]!!.isBlank()) throw IllegalStateException("empty clienttype") //config.ClientType = "hexchat"
             if (!valid) throw IllegalStateException("clientType not supported")
-            this.javaClass.getMethod(config.ClientType.toLowerCase(), String::class.java).invoke(this, l)
+            this.javaClass.getMethod(config.varMap["${entries.ClientType}"]?.toLowerCase(), String::class.java).invoke(this, l)
         } catch(e: Exception) {
             toPrint.add(e.toString())
             e.printStackTrace(stackFile)
@@ -211,7 +211,7 @@ open class listener : TailerListenerAdapter(){
 
                     }
                 } else {
-                    if (message.startsWith(config.keyword.toUpperCase())) {
+                    if (message.startsWith(config.varMap["${entries.keyword}"]!!.toUpperCase())) {
                         //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)

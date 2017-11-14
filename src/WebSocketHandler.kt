@@ -30,7 +30,7 @@ class WebSocket{
 
 
     suspend fun init(){
-        client = WebSocketClient(URI("wss://api.fuelrats.com"))
+        client = WebSocketClient(URI("wss://dev.api.fuelrats.com"))
         //println("Connecting blocking")
         client.connectBlocking()
         //println("Connected")
@@ -92,7 +92,11 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
 
 fun handleWSMessage(msg: String){
     val origElement = parser.parse(msg)
-    var meta = origElement.asJsonObject.get("meta").asJsonObject
+    var meta = origElement.
+            asJsonObject.
+            get("meta").
+            asJsonObject
+
     if (meta.asJsonObject.has("event")) return
 
     var data = origElement.asJsonObject.get("data").asJsonArray

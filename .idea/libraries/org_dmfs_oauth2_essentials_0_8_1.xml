@@ -1,0 +1,53 @@
+<component name="libraryTable">
+  <library name="org.dmfs:oauth2-essentials:0.8.1" type="repository">
+    <properties maven-id="org.dmfs:oauth2-essentials:0.8.1" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/oauth2-essentials-0.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/base64-2.3.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-decorators-0.13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc5545-datetime-0.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-20160212.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jems-1.10.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.10.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/oauth2-essentials-0.8.1-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/base64-2.3.9-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.13-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.10-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.13-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.10-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.13-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.13-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-decorators-0.13-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc5545-datetime-0.2.4-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-20160212-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jems-1.10-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.10-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/oauth2-essentials-0.8.1-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/base64-2.3.9-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-essentials-0.13-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/optional-1.10-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-headers-0.13-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/iterators-1.10-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-types-0.13-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-client-basics-0.13-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/http-executor-decorators-0.13-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc5545-datetime-0.2.4-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/json-20160212-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/rfc3986-uri-0.7-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jems-1.10-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/essentials-1.10-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
