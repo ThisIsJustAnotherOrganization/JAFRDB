@@ -26,7 +26,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="com.baulsupp.kolja:jcurses:0.9.5.3" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19" level="project" />
@@ -34,5 +33,7 @@
     <orderEntry type="library" name="com.google.code.gson:gson:2.8.2" level="project" />
     <orderEntry type="library" name="org.dmfs:oauth2-essentials:0.8.1" level="project" />
     <orderEntry type="library" name="org.dmfs:httpurlconnection-executor:0.15.1" level="project" />
+    <orderEntry type="library" name="com.googlecode.lanterna:lanterna:3.0.0" level="project" />
+    <orderEntry type="library" name="JHyperlink" level="project" />
   </component>
 </module>

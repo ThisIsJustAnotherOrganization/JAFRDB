@@ -17,7 +17,6 @@ val parser = JsonParser()
 class WebSocket{
     lateinit var client: WebSocketClient
 
-    //lateinit var writer : BufferedWriter
     companion object {
         var inst : WebSocket? = null
         fun instance(): WebSocket {
@@ -30,19 +29,15 @@ class WebSocket{
 
 
     suspend fun init(){
-        client = WebSocketClient(URI("wss://dev.api.fuelrats.com"))
-        //println("Connecting blocking")
-        client.connectBlocking()
-        //println("Connected")
+        client = WebSocketClient(URI("wss://dev.api.fuelrats.com/?bearer=${config.varMap["${entries.token}"]}"))
+        var i = 1
+        var result = client.connectBlocking()
+        while (!result){
+            toPrint.add("WebSocket Connection failed! Tries: $i")
+            i++
+            result = client.connectBlocking()
+        }
 
-        // delay(2000)
-        //while (!client.isOpen){}
-        // client.send("{\"action\":[\"rescues\",\"read\"],\"meta\":{\"action\":\"rescues:read\"},\"status\":{\"\$not\":\"closed\"}}")
-        // writer = client.socket.getOutputStream().bufferedWriter()
-    }
-
-    fun send(msg: String){
-        client.send(msg)
     }
 
     fun request(controller : String, action : String, params : Map<String, String> = emptyMap(), metaPar : Map<String, String> = emptyMap()){
@@ -80,7 +75,7 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
         }
         @Suppress("NAME_SHADOWING")
         var message : String = message
-        //println("message: " + message)
+        println("message: " + message)
         handleWSMessage(message)
     }
 
@@ -92,19 +87,23 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
 
 fun handleWSMessage(msg: String){
     val origElement = parser.parse(msg)
-    var meta = origElement.
-            asJsonObject.
-            get("meta").
-            asJsonObject
+    try {
+        var meta = origElement.
+                asJsonObject.
+                get("meta").
+                asJsonObject
 
-    if (meta.asJsonObject.has("event")) return
+        if (meta.asJsonObject.has("event")) return
 
-    var data = origElement.asJsonObject.get("data").asJsonArray
+        var data = origElement.asJsonObject.get("data").asJsonArray
 
 
-    when (meta.get("action").asString){
-        "rescues:read" -> parseRescueRead(meta, data)
-        "rats:read" -> parseRatNameResolution(meta, data)
+        when (meta.get("action").asString){
+            "rescues:read" -> parseRescueRead(meta, data)
+            "rats:read" -> parseRatNameResolution(meta, data)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace(listenfr.stackFile)
     }
 
 }
@@ -135,8 +134,8 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
                     .get("relationships").asJsonObject
                     .get("rats").asJsonObject
                     .get("data").asJsonArray
-                    .forEach { resc.rats.add(Rat(resolveRatName(""), Status("")).setNameCorrectly(it.asJsonObject.get("id").asString)) }
-            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat("", Status("")).setNameCorrectly(it.asString)) }
+                    .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status("")).setNameCorrectly()) }
+            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status("")).setNameCorrectly()) }
             //println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
             rescues.add(resc)
 

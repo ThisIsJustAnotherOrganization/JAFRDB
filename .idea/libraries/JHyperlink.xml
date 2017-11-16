@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="JHyperlink">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/JHyperlink.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/JHyperlink.jar!/" />
+    </SOURCES>
+  </library>
+</component>

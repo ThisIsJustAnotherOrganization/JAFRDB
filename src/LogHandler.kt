@@ -111,7 +111,7 @@ open class listener : TailerListenerAdapter(){
                             if (message.split(" ", limit = 3).size < 3) return
                             val rt = message.split(" ", limit = 3)[2]
                             var rats = ArrayList<Rat>()
-                            rt.split(" ").mapTo(rats) { Rat("", Status("")).setNameCorrectly(it) }
+                            rt.split(" ").mapTo(rats) { Rat(it, Status("")).setNameCorrectly() }
                             if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
                                 number = getNumber(number)
                                 rescues.filter { it.number == number.toInt() }.forEach { val tmp = it.rats; it.rats.addAll(rats.filter { !tmp.contains(it) && it.name.isNotBlank() }) }
@@ -124,7 +124,7 @@ open class listener : TailerListenerAdapter(){
                             var number = message.split(" ")[1]
                             val rt = message.split(" ", limit = 3)[2]
                             var rats = ArrayList<Rat>()
-                            rt.split(" ").mapTo(rats) { Rat("", Status("")).setNameCorrectly(it) }
+                            rt.split(" ").mapTo(rats) { Rat(it, Status("")).setNameCorrectly() }
                             if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
                                 number = getNumber(number)
 

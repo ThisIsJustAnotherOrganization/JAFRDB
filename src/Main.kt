@@ -1,10 +1,29 @@
 import Trilean.*
-import jcurses.system.CharColor
-import jcurses.system.Toolkit
+import com.googlecode.lanterna.SGR
+import com.googlecode.lanterna.TextColor
+import com.googlecode.lanterna.input.KeyType
+import com.googlecode.lanterna.terminal.DefaultTerminalFactory
+import com.googlecode.lanterna.terminal.Terminal
 import kotlinx.coroutines.experimental.launch
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
+
+
+class KeyProcessor : KeyListener{
+    override fun keyTyped(e: KeyEvent?) {
+        when(e!!.keyChar){
+            'x', 'X' -> {terminal?.exitPrivateMode();java.lang.System.exit(0)}
+        }
+    }
+
+    override fun keyPressed(e: KeyEvent?) = Unit
+
+    override fun keyReleased(e: KeyEvent?) = Unit
+
+}
 
 
 fun main(args: Array<String>) {
@@ -13,11 +32,23 @@ fun main(args: Array<String>) {
     saveConfig()
     tailerfr.delay
     tailerrc.delay
-    Toolkit.init()
-    Toolkit.clearScreen(color)
-    color.foreground = CharColor.CYAN
+    color = Pair(TextColor.ANSI.CYAN, color.second)
+    terminal = DefaultTerminalFactory().createTerminal()
+    initTimers()
 
-    //always last call
+
+    launch { while(true) {
+        val keyStroke = terminal?.pollInput() ?: continue
+        if (keyStroke.keyType != KeyType.Character) continue
+        when (keyStroke.character){
+            'x', 'X' -> {
+                terminal?.exitPrivateMode()
+                java.lang.System.exit(0)
+            }
+        }
+    }
+    }
+
     launch{inpThr.run()}
     launch{
         WebSocket.instance().init()
@@ -27,8 +58,15 @@ fun main(args: Array<String>) {
     while(true);
 
 }
-//val screenupdate = fixedRateTimer("ScreenUpdater", false, 500, 1000, ::updateScreen)
-val tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
+var screenupdate : Timer? = null
+var tailerdog : Timer? = null
+@Volatile
+var terminal: Terminal? = null
+
+fun initTimers(){
+    screenupdate = fixedRateTimer("ScreenUpdater", true, 500, 1000, ::updateScreen)
+    tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
+}
 
 
 fun checkTailer(task : TimerTask) {
@@ -47,46 +85,73 @@ fun checkTailer(task : TimerTask) {
 var toPrint = ArrayList<String>()
 
 fun updateScreen(timerTask: TimerTask) {
-    launch {
-        Toolkit.clearScreen(blackwhite)
-        var linecount = 0
-        //toPrint.add(Random().nextDouble().toString())
-        Toolkit.printString("Welcome to JAFRDB", Toolkit.getScreenWidth() / 2 - 17 /* welcome string length*/, 0, color)
-        Toolkit.printString("Cases: ", 2, 1, blackwhite)
-        linecount = printRescues()
+    with(terminal!!) {
+        enterPrivateMode()
+        setBackgroundColor(TextColor.ANSI.BLACK)
+        setForegroundColor(TextColor.ANSI.WHITE)
+        clearScreen()
+        setCursorPosition(0, 0)
+        enableSGR(SGR.BOLD)
+    }
+    var linecount = 0
+    terminal?.printString("Welcome to JAFRDB", terminal!!.terminalSize.columns / 2 - 17 /* welcome string length*/, 0)
+    terminal?.printString("Cases: ", 2, 1)
+    linecount = printRescues()
 
-//    for (str in toPrint){
-        //      Toolkit.printString(str, 0, linecount + 2, blackwhite)
-        //    linecount++
-        //}
+    val iter = toPrint.iterator()
+    while(iter.hasNext()){
+        val tmp = iter.next()
+        terminal?.printString(tmp, 2, linecount)
+        linecount++
+        //iter.remove()
     }
 }
 
-fun printRescues() : Int{
+fun Terminal.printString(input : String, x : Int, y : Int, color : Pair<TextColor, TextColor> = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK), reversed : Boolean = false){
+    @Suppress("NAME_SHADOWING")
+    val color = if (reversed){Pair(color.second, color.first)} else {color}
+    val coords = this.cursorPosition
+    this.setCursorPosition(x, y)
+    this.setForegroundColor(color.first)
+    this.setBackgroundColor(color.second)
+    input.toCharArray().forEach {
+        this.putCharacter(it)
+    }
+    flush()
+    this.cursorPosition = coords
+}
+
+fun printRescues() : Int {
     var linecount = 0
-    var colors = CharColor(CharColor.BLACK, CharColor.WHITE)
+    var colors = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK)
     try {
-        for (res in rescues){
-                var charCount = 0
-                if (res.cr) {colors.foreground = CharColor.RED}
-                if (!res.active) {colors.colorAttribute = CharColor.REVERSE}
+        for (res in rescues) {
+            var charCount = 0
+            if (res.cr) {
+                colors = Pair(TextColor.ANSI.RED, colors.second)
+            }
+            if (!res.active) {
+                terminal?.enableSGR(SGR.REVERSE)
+            }
+            terminal?.printString("${res.number} |", charCount + 2, linecount + 2, colors)
+            charCount += res.number.toString().length + 2
+            terminal?.printString(" ${res.client} |", charCount + 2, linecount + 2, colors)
+            charCount += res.client.length + 3
+            terminal?.printString(" ${res.language} |", charCount + 2, linecount + 2, colors)
+            charCount += res.language.length + 3
+            terminal?.printString(" ${res.platform} |", charCount + 2, linecount + 2, colors)
+            charCount += res.platform.length + 3
+            terminal?.printString(" ${res.clientSystem.name}", charCount + 2, linecount + 2, colors)
+            charCount += res.clientSystem.name.length + 1
+            if (!res.active) {
+                terminal?.disableSGR(SGR.REVERSE)
+            }
+            linecount = printStatus(res, linecount)
+            //printNotes
 
-                Toolkit.printString(res.number.toString() + " |", charCount + 2, linecount + 2, colors)
-                charCount += res.number.toString().length + 2
-                Toolkit.printString(" " + res.client + " |", charCount + 2, linecount + 2, colors)
-                charCount += res.client.length + 3
-                Toolkit.printString(" " + res.language + " |", charCount + 2, linecount + 2, colors)
-                charCount += res.language.length + 3
-                Toolkit.printString(" " + res.platform + " |", charCount + 2, linecount + 2, colors)
-                charCount += res.platform.length + 3
-                Toolkit.printString(" " + res.clientSystem.name, charCount + 2, linecount + 2, colors)
-                charCount += res.clientSystem.name.length + 1
-                linecount = printStatus(res, linecount)
-                //printNotes
-
-                colors = CharColor(CharColor.BLACK, CharColor.WHITE)
+            colors = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK)
         }
-    } catch(e: Exception) {
+    } catch (e: Exception) {
     }
     return linecount
 }
@@ -95,52 +160,52 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
     var lineCount = lCount + 1
     for ((name, status) in res.rats) {
         var charCount = 0
-        Toolkit.printString(name + ": ", charCount + 3, lineCount + 2, blackwhite)
+        terminal?.printString(name + ": ", charCount + 3, lineCount + 2, blackwhite)
         charCount += name.length + 2
 
-        if (status.friended == TRUE) Toolkit.printString("FR+", charCount + 3, lineCount + 2, CharColor(CharColor.MAGENTA, CharColor.WHITE))
-        if (status.friended == NEUTRAL) {Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))}
-        if (status.friended == FALSE) {Toolkit.printString("FR-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))}
+        if (status.friended == TRUE) terminal?.printString("FR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.MAGENTA, TextColor.ANSI.WHITE), true)
+        if (status.friended == NEUTRAL) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)}
+        if (status.friended == FALSE) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)}
         charCount += 3 + 1
 
-        if (status.winged == TRUE) Toolkit.printString("WR+", charCount + 3, lineCount + 2, CharColor(CharColor.CYAN, CharColor.WHITE))
-        if (status.winged == NEUTRAL) Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
-        if (status.winged == FALSE) Toolkit.printString("WR-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
+        if (status.winged == TRUE) terminal?.printString("WR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.CYAN, TextColor.ANSI.WHITE), true)
+        if (status.winged == NEUTRAL) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.winged == FALSE) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
         charCount += 3 + 1
 
-        if (status.beacon == TRUE) Toolkit.printString("Beacon+", charCount + 3, lineCount + 2, CharColor(CharColor.BLUE, CharColor.WHITE))
-        if (status.beacon == NEUTRAL) Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
-        if (status.beacon == FALSE) Toolkit.printString("Beacon-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
+        if (status.beacon == TRUE) terminal?.printString("Beacon+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLUE, TextColor.ANSI.WHITE), true)
+        if (status.beacon == NEUTRAL) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.beacon == FALSE) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
         charCount += 7 + 1
 
-        if (status.inSys == TRUE) Toolkit.printString("Sys+", charCount + 3, lineCount + 2, CharColor(CharColor.YELLOW, CharColor.WHITE))
-        if (status.inSys == NEUTRAL) Toolkit.printString("Sys-", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.inSys == TRUE) terminal?.printString("Sys+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.YELLOW, TextColor.ANSI.WHITE), true)
+        if (status.inSys == NEUTRAL) terminal?.printString("Sys-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
         charCount += 4 + 1
 
-        if (status.fueled == TRUE) Toolkit.printString("Fuel+", charCount + 3, lineCount + 2, CharColor(CharColor.GREEN, CharColor.WHITE))
-        else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.fueled == TRUE) terminal?.printString("Fuel+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.GREEN, TextColor.ANSI.WHITE), true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
         charCount += 5 + 1
 
-        if (status.disconnected == TRUE) Toolkit.printString("DC", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
-        else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.disconnected == TRUE) terminal?.printString("DC", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
         charCount += 2 + 1
 
-        if (status.instancingP == TRUE) Toolkit.printString("Inst-", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
-        if (status.instancingP == NEUTRAL) Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
-        if (status.instancingP == FALSE) Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.GREEN))
+        if (status.instancingP == TRUE) terminal?.printString("Inst-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
+        if (status.instancingP == NEUTRAL) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.instancingP == FALSE) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.GREEN), true)
         charCount += 5 + 1
 
-        if (status.interdicted == TRUE) Toolkit.printString("INT", charCount + 3, lineCount + 2, CharColor(CharColor.RED, CharColor.WHITE))
-        else Toolkit.printString("", charCount + 3, lineCount + 2, CharColor(CharColor.BLACK, CharColor.WHITE))
+        if (status.interdicted == TRUE) terminal?.printString("INT", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
         charCount += 3 + 1
 
         lineCount++
     }
     return lineCount
 }
-val color = CharColor(CharColor.BLACK, CharColor.WHITE)
+var color = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK)
 @Volatile
-var blackwhite = CharColor(CharColor.BLACK, CharColor.WHITE)
+var blackwhite = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK)
 fun times(i : Int, function: (i : Int) -> Unit){
     var x : Int = 0
     while (x < i){
@@ -150,12 +215,14 @@ fun times(i : Int, function: (i : Int) -> Unit){
 
 
 }
-fun beep(){ print(7.toChar())}
-enum class Rank{none, recruit, rat, overseer, techrat, op, netadmin, admin}
+fun beep(){
+    if ("${config.varMap["${entries.beep}"]}" == "true")
+    terminal?.bell()
+}
 
 
 data class Rat( var name : String, var status : Status){
-    fun setNameCorrectly(value : String) : Rat {
+    fun setNameCorrectly() : Rat {
         name.replace(" ", "_").replaceAfter("[", "")
         return this
     }
