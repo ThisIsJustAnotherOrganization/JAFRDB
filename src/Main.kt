@@ -4,12 +4,21 @@ import com.googlecode.lanterna.TextColor
 import com.googlecode.lanterna.input.KeyType
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory
 import com.googlecode.lanterna.terminal.Terminal
+import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration
+import com.googlecode.lanterna.terminal.swing.AWTTerminalFrame
 import kotlinx.coroutines.experimental.launch
+import java.awt.Font
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.io.PrintStream
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
+import kotlin.system.exitProcess
 
 
 class KeyProcessor : KeyListener{
@@ -25,17 +34,46 @@ class KeyProcessor : KeyListener{
 
 }
 
+class windowListen : WindowAdapter(){
+
+    override fun windowClosing(e: WindowEvent?) {
+        super.windowClosing(e)
+    }
+
+    override fun windowClosed(e: WindowEvent?) {
+        super.windowClosed(e)
+        terminal!!.exitPrivateMode()
+        exitProcess(0)
+    }
+}
+
 
 fun main(args: Array<String>) {
-    initConfig()
-    readConfig()
+    java.lang.System.setOut(PrintStream(BufferedOutputStream(FileOutputStream("output.txt")), true))
+
+    if (initConfig()){
+        readConfig()
+    }
+
+    if (config.varMap["${entries.token}"] == ""){
+        AuthHandler().authorize()
+        println(config.varMap["${entries.token}"])
+    }
     saveConfig()
     tailerfr.delay
     tailerrc.delay
     color = Pair(TextColor.ANSI.CYAN, color.second)
-    terminal = DefaultTerminalFactory().createTerminal()
+    terminal = DefaultTerminalFactory()
+            .setTerminalEmulatorTitle("JAFRDB: Just another FuelRats dispatch board")
+            .setForceAWTOverSwing(true)
+            .setTerminalEmulatorFontConfiguration(AWTTerminalFontConfiguration.newInstance(Font(Font.MONOSPACED, Font.PLAIN, config.varMap["${entries.fontSize}"]!!.toInt())))
+            .createTerminal()
+
     initTimers()
 
+    if (terminal is AWTTerminalFrame){
+        (terminal as AWTTerminalFrame).addWindowListener(windowListen())
+    }
 
     launch { while(true) {
         val keyStroke = terminal?.pollInput() ?: continue
@@ -64,7 +102,7 @@ var tailerdog : Timer? = null
 var terminal: Terminal? = null
 
 fun initTimers(){
-    screenupdate = fixedRateTimer("ScreenUpdater", true, 500, 1000, ::updateScreen)
+    screenupdate = fixedRateTimer("ScreenUpdater", true, 500, (1000.0 * (config.varMap["${entries.fontSize}"]!!.toLong() / 100.0 + 1.0).toLong()).toLong(), ::updateScreen)
     tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
 }
 

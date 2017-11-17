@@ -1,6 +1,7 @@
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.PrintWriter
+import java.lang.System
 import java.nio.charset.Charset
 import java.util.*
 
@@ -14,11 +15,27 @@ public class Config{
 }
 
 enum class entries{
-    LogPathFr, ClientType, keyword, beep, LogPathRc, token
+    LogPathFr, ClientType, keyword, beep, LogPathRc, token, fontSize
 }
 
-fun initConfig(){
-    if (!configFile.exists()) configFile.createNewFile()
+/**
+ * @return true if config already existed, false when it has been initialized with defaults
+ */
+fun initConfig() : Boolean{
+    if (!configFile.exists()) {
+        configFile.createNewFile()
+        //DEFAULT CONFIG
+        config.varMap["${entries.LogPathFr}"] = "${System.getenv("appdata")}hexchat/logs/fuelrats/#fuelrats.log"
+        config.varMap["${entries.LogPathRc}"] = "${System.getenv("appdata")}hexchat/logs/fuelrats/#ratchat.log"
+        config.varMap["${entries.ClientType}"] = "hexchat"
+        config.varMap["${entries.keyword}"] = "ratsignal"
+        config.varMap["${entries.beep}"] = "true"
+        config.varMap["${entries.fontSize}"] = "20"
+        config.varMap["${entries.token}"] = ""
+
+
+    }
+    return true
 }
 
 fun readConfig(){
@@ -36,10 +53,6 @@ fun readConfig(){
 
     println("token is: ${config.varMap["${entries.token}"]}")
     if ("${config.varMap["${entries.token}"]}" == "null"){config.varMap["${entries.token}"] = ""}
-    if (config.varMap["${entries.token}"] == ""){
-        AuthHandler().authorize()
-        println(config.varMap["${entries.token}"])
-    }
 }
 
 fun saveConfig(){

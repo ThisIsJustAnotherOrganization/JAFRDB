@@ -7,10 +7,12 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import kotlinx.coroutines.experimental.launch
+import org.java_websocket.WebSocketImpl
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.Exception
 import java.net.URI
 import java.util.*
+import javax.net.ssl.SSLContext
 
 
 val parser = JsonParser()
@@ -29,7 +31,14 @@ class WebSocket{
 
 
     suspend fun init(){
+        WebSocketImpl.DEBUG = true
         client = WebSocketClient(URI("wss://dev.api.fuelrats.com/?bearer=${config.varMap["${entries.token}"]}"))
+        println("TESTING REDIRECT, DEBUG MODE ACTIVATED")
+
+        val sslcontext = SSLContext.getInstance("TLS")
+        sslcontext.init(null, null, null)
+        client.socket = sslcontext.socketFactory.createSocket()
+
         var i = 1
         var result = client.connectBlocking()
         while (!result){
@@ -54,6 +63,7 @@ class WebSocket{
         meta.add("mydata", myData)
         root.add("meta", meta)
         client.send(root.toString())
+
     }
 
 
@@ -62,6 +72,7 @@ class WebSocket{
 class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri){
     override fun onOpen(handshakedata: ServerHandshake?) {
         //println("Opening Connection")
+
     }
 
     override fun onClose(code: Int, reason: String?, remote: Boolean) {

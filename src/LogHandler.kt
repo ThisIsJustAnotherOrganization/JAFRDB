@@ -337,7 +337,7 @@ open class listener : TailerListenerAdapter(){
     }
 
     override fun fileNotFound() {
-        toPrint.add("File Not Found")
+        toPrint.add("Path to the #Fuelrats log-file is incorrect. Please check your config, make sure you included the file name AND extension and restart")
         tailerfr.stop()
     }
 
@@ -347,5 +347,10 @@ class rclistener : listener() {
      override fun handle(ex: Exception?) {
         rctailerStopped = true
         ex!!.printStackTrace(stackFile)
+    }
+
+    override fun fileNotFound() {
+        toPrint.add("Path to the #Ratchat log-file is incorrect. Please check your config, make sure you included the file name AND extension and restart")
+        tailerrc.stop()
     }
 }
