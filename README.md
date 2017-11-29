@@ -10,3 +10,6 @@ This file also contains your API token, which is unique to YOU and should never 
 ### For those messing with this file manually:
     current tokens are:  LogPathFr, ClientType, keyword, beep, LogPathRc, token and fontSize
     they must be separated by ": " from their value (like: keyword: ratsignal)
+    ALL token names are CASE-SENSITIVE
+    LogPathFr and LogPathRc MUST include the filename!
+
