@@ -15,16 +15,18 @@ import java.awt.event.WindowEvent
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.io.PrintStream
+import java.lang.System
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
+import kotlin.properties.Delegates
 import kotlin.system.exitProcess
 
 
 class KeyProcessor : KeyListener{
     override fun keyTyped(e: KeyEvent?) {
         when(e!!.keyChar){
-            'x', 'X' -> {terminal?.exitPrivateMode();java.lang.System.exit(0)}
+            'x', 'X' -> {terminal?.exitPrivateMode();System.exit(0)}
         }
     }
 
@@ -49,11 +51,10 @@ class windowListen : WindowAdapter(){
 
 
 fun main(args: Array<String>) {
-    java.lang.System.setOut(PrintStream(BufferedOutputStream(FileOutputStream("output.txt")), true))
+    System.setOut(PrintStream(BufferedOutputStream(FileOutputStream("output.txt")), true))
 
-    if (initConfig()){
-        readConfig()
-    }
+    initConfig()
+    readConfig()
 
     if (config.varMap["${entries.token}"] == ""){
         AuthHandler().authorize()
@@ -73,6 +74,7 @@ fun main(args: Array<String>) {
 
     if (terminal is AWTTerminalFrame){
         (terminal as AWTTerminalFrame).addWindowListener(windowListen())
+
     }
 
     launch { while(true) {
@@ -81,7 +83,7 @@ fun main(args: Array<String>) {
         when (keyStroke.character){
             'x', 'X' -> {
                 terminal?.exitPrivateMode()
-                java.lang.System.exit(0)
+                System.exit(0)
             }
         }
     }
@@ -102,7 +104,7 @@ var tailerdog : Timer? = null
 var terminal: Terminal? = null
 
 fun initTimers(){
-    screenupdate = fixedRateTimer("ScreenUpdater", true, 500, (1000.0 * (config.varMap["${entries.fontSize}"]!!.toLong() / 100.0 + 1.0).toLong()).toLong(), ::updateScreen)
+    //screenupdate = fixedRateTimer("ScreenUpdater", true, 500, (1000.0 * (config.varMap["${entries.fontSize}"]!!.toLong() / 100.0 + 1.0).toLong()).toLong(), ::updateScreen)
     tailerdog = fixedRateTimer("TailerWatchdog", true, 500, 1000, ::checkTailer)
 }
 
@@ -121,8 +123,15 @@ fun checkTailer(task : TimerTask) {
 
 @Volatile
 var toPrint = ArrayList<String>()
+var lastHash = -1
 
 fun updateScreen(timerTask: TimerTask) {
+    updateScreen()
+}
+fun updateScreen() {
+    if (!dirty) return
+    dirty = false
+
     with(terminal!!) {
         enterPrivateMode()
         setBackgroundColor(TextColor.ANSI.BLACK)
@@ -143,6 +152,7 @@ fun updateScreen(timerTask: TimerTask) {
         linecount++
         //iter.remove()
     }
+    //terminal!!.exitPrivateMode()
 }
 
 fun Terminal.printString(input : String, x : Int, y : Int, color : Pair<TextColor, TextColor> = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK), reversed : Boolean = false){
@@ -259,37 +269,28 @@ fun beep(){
 }
 
 
-data class Rat( var name : String, var status : Status){
+class Rat(name : String, status : Status){
+    var name : String by Delegates.observable(name, ::rescueChanged)
+    var status : Status by Delegates.observable(status, ::rescueChanged)
+
     fun setNameCorrectly() : Rat {
         name.replace(" ", "_").replaceAfter("[", "")
         return this
     }
 
-}
+    operator fun component1(): String {
+        return name
+    }
 
-
-data class System(var name : String)
-data class Status(var status : String){
-    var friended : Trilean = NEUTRAL
-    var winged : Trilean = NEUTRAL
-    var beacon : Trilean = NEUTRAL
-    var inSys : Trilean = NEUTRAL
-    var fueled : Trilean = NEUTRAL
-    var disconnected : Trilean = NEUTRAL
-    var instancingP: Trilean = NEUTRAL
-    var interdicted: Trilean = NEUTRAL
-}
-data class Rescue(var client : String, var clientSystem : System, val language : String, var number : Int, var platform : String, var cr : Boolean, var active : Boolean = true){
-    var rats : MutableList<Rat> = ArrayList()
-    var notes : MutableList<String> = ArrayList()
-   // var active : Boolean = true
+    operator fun component2() : Status {
+        return status
+    }
 
 }
 
-enum class Trilean{
-    TRUE, FALSE, NEUTRAL;
-}
-var rescues = ArrayList<Rescue>()
+@Suppress("INACCESSIBLE_TYPE", "*")
+var rescues : WatchableMutableList<Rescue> = WatchableMutableList(::updateScreen)<Rescue>()
+
 
 
 

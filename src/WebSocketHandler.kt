@@ -88,10 +88,11 @@ class WebSocketClient(uri: URI) : org.java_websocket.client.WebSocketClient(uri)
         var message : String = message
         println("message: " + message)
         handleWSMessage(message)
+
     }
 
     override fun onError(ex: Exception?) {
-        ex!!.printStackTrace()
+        ex!!.printStackTrace(listenfr.stackFile)
     }
 
 }
@@ -149,6 +150,8 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
             attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status("")).setNameCorrectly()) }
             //println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
             rescues.add(resc)
+            markDirty()
+            //updateScreen()
 
         }
     }

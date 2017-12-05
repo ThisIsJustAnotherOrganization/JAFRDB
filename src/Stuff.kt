@@ -1,6 +1,8 @@
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
+internal var dirty = false
+
 val inpThr : Thread = Thread(fun (){
     while (true) {
         //println("triggered")
@@ -37,15 +39,6 @@ fun String.strip() : String{
     return sb.toString()
 }
 
-fun String.reduceOld() : String{
-    val charr = this.toCharArray().toMutableList()
-    val sb = StringBuilder()
-    charr
-            .filterIndexed { i, c -> charr.lastIndex > i && !(c == ' ' && charr[i + 1] == ' ') }
-            .forEach { sb.append(it) }
-    return sb.toString()
-}
-
 fun String.reduce() : String{
     val tmp1 = this.trim().split(" ").toMutableList()
     tmp1.removeAll { it.trim() == "" }
@@ -59,3 +52,8 @@ fun ArrayList<Rescue>.asStringArray(): ArrayList<String> {
     this.mapTo(retV) { "${it.number}|${it.client}|${it.language}|${it.clientSystem.name}|${it.platform}|${it.active}" }
     return retV;
 }
+
+fun markDirty(){
+    dirty = true
+}
+

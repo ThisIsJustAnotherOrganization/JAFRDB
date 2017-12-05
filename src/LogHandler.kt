@@ -276,7 +276,6 @@ open class listener : TailerListenerAdapter(){
 
                         if (message.contains("inst-")) {
                             getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.instancingP = TRUE; beep() }
-                            beep()
                         }
 
                         if (message.contains("inst+")) {
@@ -324,6 +323,9 @@ open class listener : TailerListenerAdapter(){
             }
             if (ret.isEmpty()){
                 return Rescue("", System(""), "", -1, "", false)
+            }
+            else{
+                updateScreen()
             }
             return ret[0]
         }

@@ -39,7 +39,7 @@ class AuthHandler{
         val auth = Auth.Authenticator("")
         launch{Application.launch(UrlDialog().javaClass)}
         val result = auth.awaitAccessToken()
-        UrlDialog.frame.isVisible = false
+        UrlDialog.frame.dispose()
         println("$result")
         if (!result){
             throw IllegalStateException("couldnt start Server " + auth.authenticationError?.name + "," + auth.authenticationError?.description)

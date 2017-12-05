@@ -3,8 +3,8 @@
     <properties maven-id="org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19" />
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlinx/kotlinx-coroutines-core/0.19/kotlinx-coroutines-core-0.19.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib/1.1.51/kotlin-stdlib-1.1.51.jar!/" />
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/annotations/13.0/annotations-13.0.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib/1.1.51/kotlin-stdlib.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlinx/kotlinx-coroutines-core/0.19/kotlinx-coroutines-core-0.19-javadoc.jar!/" />

@@ -32,13 +32,14 @@ fun initConfig() : Boolean{
         config.varMap["${entries.beep}"] = "true"
         config.varMap["${entries.fontSize}"] = "20"
         config.varMap["${entries.token}"] = ""
-
-
+        saveConfig()
+        return false
     }
     return true
 }
 
 fun readConfig(){
+    config.varMap.clear()
     val lines : MutableList<String> = IOUtils.readLines(configFile.inputStream(), Charset.defaultCharset())
     lines
             .filter { it -> it.reduce().toCharArray()[0] != '#' } //allows for comments
@@ -53,6 +54,12 @@ fun readConfig(){
 
     println("token is: ${config.varMap["${entries.token}"]}")
     if ("${config.varMap["${entries.token}"]}" == "null"){config.varMap["${entries.token}"] = ""}
+
+      entries.values().forEach test@ {
+          if (it == entries.token) return@test
+          val value = config.varMap["$it"]
+
+      }
 }
 
 fun saveConfig(){
