@@ -288,8 +288,8 @@ class Rat(name : String, status : Status){
 
 }
 
-@Suppress("INACCESSIBLE_TYPE", "*")
-var rescues : WatchableMutableList<Rescue> = WatchableMutableList(::updateScreen)<Rescue>()
+
+var rescues : WatchableMutableList<Rescue> = WatchableMutableList(::updateScreen)
 
 
 
