@@ -3,6 +3,7 @@
  */
 
 import com.google.gson.*
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.Exception
@@ -215,11 +216,9 @@ fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
                     .map { Rat(resolveRatName(it), Status(""), it)}
                 )*/
 
-                for (rat in ratsNow){
-                    if (!rats.map { it.uuid }.contains(rat)){
-                        rats.add(Rat(resolveRatName(rat), uuid=rat))
-                    }
-                }
+                ratsNow
+                        .filterNot { rat -> rats.map { it.uuid }.contains(rat) }
+                        .forEach { rats.add(Rat(resolveRatName(it), uuid= it)) }
                 attributes.get("unidentifiedRats").asJsonArray.forEach { rats.add(Rat(it.asString, uuid="-1").setNameCorrectly())}
 
                 /*
@@ -245,6 +244,7 @@ fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
 
     }
     updateScreen()
+    launch{ delay(255); updateScreen()}
 
 }
 

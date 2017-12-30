@@ -83,6 +83,7 @@ open class listener : TailerListenerAdapter(){
 
 
 
+    @Suppress("UNREACHABLE_CODE")
     fun handleMessage(nick : String, message: String){
         @Suppress("NAME_SHADOWING")
         var message = message.strip().reduce()
@@ -212,6 +213,7 @@ open class listener : TailerListenerAdapter(){
                     }
                 } else {
                     if (message.startsWith(config.varMap["${entries.keyword}"]!!.toUpperCase())) {
+                        return //ignore signals for now, but keep the active Code for now
                         //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)

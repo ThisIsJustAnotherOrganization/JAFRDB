@@ -287,8 +287,8 @@ class Rat(name : String, status : Status = Status(""), val uuid: String){
 
 }
 
-
-var rescues : WatchableMutableList<Rescue> = WatchableMutableList(::updateScreen)
+fun noop() = Unit
+var rescues : WatchableMutableList<Rescue> = WatchableMutableList(::noop)
 
 
 
