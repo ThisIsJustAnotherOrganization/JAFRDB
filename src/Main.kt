@@ -85,6 +85,8 @@ fun main(args: Array<String>) {
                 terminal?.exitPrivateMode()
                 System.exit(0)
             }
+            'r', 'R' -> updateScreen()
+
         }
     }
     }
@@ -129,9 +131,6 @@ fun updateScreen(timerTask: TimerTask) {
     updateScreen()
 }
 fun updateScreen() {
-    if (!dirty) return
-    dirty = false
-
     with(terminal!!) {
         enterPrivateMode()
         setBackgroundColor(TextColor.ANSI.BLACK)
@@ -269,7 +268,7 @@ fun beep(){
 }
 
 
-class Rat(name : String, status : Status){
+class Rat(name : String, status : Status = Status(""), val uuid: String){
     var name : String by Delegates.observable(name, ::rescueChanged)
     var status : Status by Delegates.observable(status, ::rescueChanged)
 

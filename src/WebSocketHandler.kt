@@ -2,12 +2,8 @@
  * Created by beepbeat/holladiewal on 04.11.2017.
  */
 
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
-import com.google.gson.JsonParser
-import com.google.gson.JsonPrimitive
+import com.google.gson.*
 import kotlinx.coroutines.experimental.launch
-import org.java_websocket.WebSocketImpl
 import org.java_websocket.handshake.ServerHandshake
 import java.lang.Exception
 import java.net.URI
@@ -31,7 +27,7 @@ class WebSocket{
 
 
     suspend fun init(){
-        WebSocketImpl.DEBUG = true
+        //WebSocketImpl.DEBUG = true
         client = WebSocketClient(URI("wss://dev.api.fuelrats.com/?bearer=${config.varMap["${entries.token}"]}"))
         println("TESTING REDIRECT, DEBUG MODE ACTIVATED")
 
@@ -62,6 +58,11 @@ class WebSocket{
         metaPar.forEach { t, u -> myData.add(t, JsonPrimitive(u)) }
         meta.add("mydata", myData)
         root.add("meta", meta)
+        if ("$controller:$action" == "rescues:read"){
+            val status = JsonObject()
+            status.add("\$not", JsonPrimitive("closed"))
+            root.add("status", status)
+        }
         client.send(root.toString())
 
     }
@@ -104,14 +105,18 @@ fun handleWSMessage(msg: String){
                 asJsonObject.
                 get("meta").
                 asJsonObject
-
-        if (meta.asJsonObject.has("event")) return
-
         var data = origElement.asJsonObject.get("data").asJsonArray
+
+        if (meta.asJsonObject.has("event")){
+            when(meta.asJsonObject.get("event").asString){
+                "rescueUpdated" -> {parseRescueUpdate(meta, data)}
+            }
+        }
+
 
 
         when (meta.get("action").asString){
-            "rescues:read" -> parseRescueRead(meta, data)
+            "rescues:read" -> {parseRescueRead(meta, data);updateScreen()}
             "rats:read" -> parseRatNameResolution(meta, data)
         }
     } catch (e: Exception) {
@@ -132,7 +137,8 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
             val system = if (!attributes.get("system").isJsonNull) System(attributes.get("system").asString) else System("null")
             val lang = attributes.get("data").asJsonObject.get("langID").asString
             val number = attributes.get("data").asJsonObject.get("boardIndex").asInt
-            val platform = attributes.get("platform").asString
+            val platform = if (!attributes.get("platform").isJsonNull) attributes.get("platform").asString else "Unknown"
+            val uuid = it.asJsonObject.get("id").asString
             val active: Boolean =
                     when (attributes.get("status").asString) {
                         "inactive" -> false
@@ -141,20 +147,105 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
                             /*println("Rescue state neither inactive or open: " + it.asJsonObject.get("id").asString.subSequence(0, 7)); */return@launch
                         }
                     }
-            val resc = Rescue(name, system, lang, number, platform, cr, active)
+            val resc = Rescue(name, system, lang, number, platform, cr, uuid, active)
             it.asJsonObject
                     .get("relationships").asJsonObject
                     .get("rats").asJsonObject
                     .get("data").asJsonArray
-                    .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status("")).setNameCorrectly()) }
-            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status("")).setNameCorrectly()) }
+                    .forEach { resc.rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status(""), it.asJsonObject.get("id").asString).setNameCorrectly()) }
+            attributes.get("unidentifiedRats").asJsonArray.forEach { resc.rats.add(Rat(it.asString, Status(""), it.asString).setNameCorrectly()) }
             //println("adding rescue. name: $name, cr: $cr, system: $system, lang: $lang, number: $number, platform: $platform")
             rescues.add(resc)
-            markDirty()
-            //updateScreen()
 
         }
     }
+    updateScreen()
+}
+
+fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
+    data.forEach {
+        launch {
+            @Suppress("NAME_SHADOWING", "UnnecessaryVariable")
+            val _data = it
+            val attributes: JsonObject = it.asJsonObject.get("attributes").asJsonObject
+            val name = attributes.get("data").asJsonObject.get("IRCNick").asString
+            val cr = attributes.get("codeRed").asBoolean
+            val system = if (!attributes.get("system").isJsonNull) System(attributes.get("system").asString) else System("null")
+            val number = attributes.get("data").asJsonObject.get("boardIndex").asInt
+            val platform = if (!attributes.get("platform").isJsonNull) attributes.get("platform").asString else "Unknown"
+            val active: Boolean =
+                    when (attributes.get("status").asString) {
+                        "inactive" -> false
+                        "open" -> true
+                        else -> {
+                            /*println("Rescue state neither inactive or open: " + it.asJsonObject.get("id").asString.subSequence(0, 7)); */
+                            rescues.removeIf{ it.UUID == _data.asJsonObject.get("id").asString }
+                            return@launch
+                        }
+                    }
+
+            if (rescues.none{ it.UUID == _data.asJsonObject.get("id").asString }){parseRescueRead(meta, data); updateScreen(); return@launch}
+            with(rescues.filter { it.UUID == _data.asJsonObject.get("id").asString }[0]) {
+                this.client = name
+                this.cr = cr
+                this.clientSystem = system
+                this.number = number
+                this.platform = platform
+                this.active = active
+
+                @Suppress("LocalVariableName")
+                val _ratsNow = it.asJsonObject.get("relationships").asJsonObject.get("rats").asJsonObject.get("data").asJsonArray
+
+                val ratsNow : MutableList<String> = _ratsNow.map<JsonElement, String> { it.asJsonObject.get("id").asString }.toMutableList()
+
+                ratsNow.forEach {
+                    val tmp = it
+                    rats.filter { it.uuid == tmp }
+
+                }
+
+                rats.removeIf{!ratsNow.contains(it.uuid)}
+
+/*                rats.addAll(
+                    ratsNow.filter{
+                        !rats.map {
+                            it.uuid }
+                                .contains(it)
+                    }
+                    .map { Rat(resolveRatName(it), Status(""), it)}
+                )*/
+
+                for (rat in ratsNow){
+                    if (!rats.map { it.uuid }.contains(rat)){
+                        rats.add(Rat(resolveRatName(rat), uuid=rat))
+                    }
+                }
+                attributes.get("unidentifiedRats").asJsonArray.forEach { rats.add(Rat(it.asString, uuid="-1").setNameCorrectly())}
+
+                /*
+                The above ratsNow action is equivalent to:
+**
+                for (rat in ratsNow){
+                    if (!rats.map { it.uuid }.contains(rat)){
+                        rats.add(Rat(resolveRatName(rat), uuid=rat))
+                    }
+                }
+**
+
+                 */
+
+
+                //.forEach { rats.add(Rat(resolveRatName(it.asJsonObject.get("id").asString), Status("")).setNameCorrectly()) }
+            }
+
+
+        }
+
+
+
+    }
+    updateScreen()
+
 }
 
 fun parseRatNameResolution(meta: JsonObject, data : JsonArray){

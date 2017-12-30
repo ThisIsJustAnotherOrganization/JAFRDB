@@ -18,6 +18,7 @@ class WatchableMutableList<E>(val callback : () -> Unit) : MutableList<E> {
     }
 
     override fun get(index: Int): E {
+        callback()
         return internalList.get(index)
     }
 

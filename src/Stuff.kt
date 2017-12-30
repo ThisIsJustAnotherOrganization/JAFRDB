@@ -53,7 +53,4 @@ fun ArrayList<Rescue>.asStringArray(): ArrayList<String> {
     return retV;
 }
 
-fun markDirty(){
-    dirty = true
-}
 

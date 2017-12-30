@@ -16,7 +16,7 @@ data class Status(var status : String){
     var instancingP: Trilean by observable(NEUTRAL, ::rescueChanged)
     var interdicted: Trilean by observable(NEUTRAL, ::rescueChanged)
 }
-class Rescue(client : String, clientSystem : System, language : String, number : Int, platform : String, cr : Boolean, active : Boolean = true){
+class Rescue(client : String, clientSystem : System, language : String, number : Int, platform : String, cr : Boolean, uuid: String, active : Boolean = true){
 
     var client : String by observable(client, ::rescueChanged)
     var clientSystem : System by observable(clientSystem, ::rescueChanged)
@@ -25,6 +25,7 @@ class Rescue(client : String, clientSystem : System, language : String, number :
     var platform : String by observable(platform, ::rescueChanged)
     var cr : Boolean by observable(cr, ::rescueChanged)
     var active : Boolean by observable(active, ::rescueChanged)
+    val UUID : String = uuid
 
 
 

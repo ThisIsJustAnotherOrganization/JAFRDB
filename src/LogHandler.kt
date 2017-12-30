@@ -92,7 +92,7 @@ open class listener : TailerListenerAdapter(){
                 val file = File("debug.log")
                 if (!file.exists()) file.createNewFile()
                 PrintWriter(file.path).close()
-                FileUtils.writeLines(file, rescues.asStringArray())
+                FileUtils.writeLines(file, rescues)
             }
 
             if (nick.toLowerCase() == "internal") {
@@ -111,7 +111,7 @@ open class listener : TailerListenerAdapter(){
                             if (message.split(" ", limit = 3).size < 3) return
                             val rt = message.split(" ", limit = 3)[2]
                             var rats = ArrayList<Rat>()
-                            rt.split(" ").mapTo(rats) { Rat(it, Status("")).setNameCorrectly() }
+                            rt.split(" ").mapTo(rats) { Rat(it, Status(""), it).setNameCorrectly() }
                             if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
                                 number = getNumber(number)
                                 rescues.filter { it.number == number.toInt() }.forEach { val tmp = it.rats; it.rats.addAll(rats.filter { !tmp.contains(it) && it.name.isNotBlank() }) }
@@ -124,7 +124,7 @@ open class listener : TailerListenerAdapter(){
                             var number = message.split(" ")[1]
                             val rt = message.split(" ", limit = 3)[2]
                             var rats = ArrayList<Rat>()
-                            rt.split(" ").mapTo(rats) { Rat(it, Status("")).setNameCorrectly() }
+                            rt.split(" ").mapTo(rats) { Rat(it, Status(""), it).setNameCorrectly() }
                             if (number.contains("#").and(containsNumber(number)) || number.toIntOrNull() != null) {
                                 number = getNumber(number)
 
@@ -237,7 +237,7 @@ open class listener : TailerListenerAdapter(){
                             }
 
 
-                            rescues.add(Rescue(name, System(system), lang, number, platform, cr))
+                            rescues.add(Rescue(name, System(system), lang, number, platform, cr, "-1"))
                         }
 
                     } else {
@@ -309,7 +309,7 @@ open class listener : TailerListenerAdapter(){
             number = getNumber(number)
 
             val ret = rescues.filter{it.number == number.toInt()}
-            if (ret.isEmpty()) return Rescue("", System(""), "", -1, "", false)
+            if (ret.isEmpty()) return Rescue("", System(""), "", -1, "", false, "-1")
             return ret[0]
         }
         else{
@@ -322,7 +322,7 @@ open class listener : TailerListenerAdapter(){
                 }
             }
             if (ret.isEmpty()){
-                return Rescue("", System(""), "", -1, "", false)
+                return Rescue("", System(""), "", -1, "", false, "-1")
             }
             else{
                 updateScreen()
