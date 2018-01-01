@@ -160,7 +160,7 @@ fun parseRescueRead(meta: JsonObject, data : JsonArray){
 
         }
     }
-    updateScreen()
+    launch{ delay(255); updateScreen()}
 }
 
 fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
@@ -219,6 +219,7 @@ fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
                 ratsNow
                         .filterNot { rat -> rats.map { it.uuid }.contains(rat) }
                         .forEach { rats.add(Rat(resolveRatName(it), uuid= it)) }
+
                 attributes.get("unidentifiedRats").asJsonArray.forEach { rats.add(Rat(it.asString, uuid="-1").setNameCorrectly())}
 
                 /*
@@ -243,7 +244,7 @@ fun parseRescueUpdate(meta: JsonObject, data: JsonArray){
 
 
     }
-    updateScreen()
+  //  updateScreen()
     launch{ delay(255); updateScreen()}
 
 }

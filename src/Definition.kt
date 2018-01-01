@@ -29,7 +29,7 @@ class Rescue(client : String, clientSystem : System, language : String, number :
 
 
 
-    var rats : WatchableMutableList<Rat> = WatchableMutableList(::updateScreen)
+    var rats : WatchableMutableList<Rat> = WatchableMutableList(::noop)
     var notes : WatchableMutableList<String> = WatchableMutableList(::updateScreen)
 
     override fun hashCode(): Int {
@@ -46,8 +46,4 @@ enum class Trilean{
     TRUE, FALSE, NEUTRAL;
 }
 
-fun rescueChanged(prop : Any, old : Any, new : Any){
-    //println()
-    //if (old != new)
-        //updateScreen()
-}
+fun rescueChanged(prop : Any, old : Any, new : Any) = Unit

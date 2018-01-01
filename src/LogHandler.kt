@@ -54,6 +54,8 @@ open class listener : TailerListenerAdapter(){
         handleMessage(nick, line)
     }
 
+    fun adiirc(l : String?) = mirc(l)
+
     fun mirc(l : String?){
         var line : String = l!!.replace("\t", " ")
         val nick = line.split(Pattern.compile(" "), 3)[1].replace("<", "").replace(">", "").replace("+", "").replace("%", "").replace("@", "").replace("~", "").replace("&", "") // strip: +%@~&

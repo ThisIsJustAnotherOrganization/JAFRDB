@@ -154,7 +154,7 @@ fun updateScreen() {
     //terminal!!.exitPrivateMode()
 }
 
-fun Terminal.printString(input : String, x : Int, y : Int, color : Pair<TextColor, TextColor> = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK), reversed : Boolean = false){
+fun Terminal.printString(input : String, x : Int, y : Int, color : Pair<TextColor, TextColor> = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK), reversed : Boolean = false, noflush : Boolean = false){
     @Suppress("NAME_SHADOWING")
     val color = if (reversed){Pair(color.second, color.first)} else {color}
     val coords = this.cursorPosition
@@ -164,7 +164,7 @@ fun Terminal.printString(input : String, x : Int, y : Int, color : Pair<TextColo
     input.toCharArray().forEach {
         this.putCharacter(it)
     }
-    flush()
+    if (!noflush) flush()
     this.cursorPosition = coords
 }
 
@@ -180,15 +180,15 @@ fun printRescues() : Int {
             if (!res.active) {
                 terminal?.enableSGR(SGR.REVERSE)
             }
-            terminal?.printString("${res.number} |", charCount + 2, linecount + 2, colors)
+            terminal?.printString("${res.number} |", charCount + 2, linecount + 2, colors, noflush=true)
             charCount += res.number.toString().length + 2
-            terminal?.printString(" ${res.client} |", charCount + 2, linecount + 2, colors)
+            terminal?.printString(" ${res.client} |", charCount + 2, linecount + 2, colors, noflush=true)
             charCount += res.client.length + 3
-            terminal?.printString(" ${res.language} |", charCount + 2, linecount + 2, colors)
+            terminal?.printString(" ${res.language} |", charCount + 2, linecount + 2, colors, noflush=true)
             charCount += res.language.length + 3
-            terminal?.printString(" ${res.platform} |", charCount + 2, linecount + 2, colors)
+            terminal?.printString(" ${res.platform} |", charCount + 2, linecount + 2, colors, noflush=true)
             charCount += res.platform.length + 3
-            terminal?.printString(" ${res.clientSystem.name}", charCount + 2, linecount + 2, colors)
+            terminal?.printString(" ${res.clientSystem.name}", charCount + 2, linecount + 2, colors, noflush=true)
             charCount += res.clientSystem.name.length + 1
             if (!res.active) {
                 terminal?.disableSGR(SGR.REVERSE)
@@ -197,6 +197,7 @@ fun printRescues() : Int {
             //printNotes
 
             colors = Pair(TextColor.ANSI.WHITE, TextColor.ANSI.BLACK)
+            terminal?.flush()
         }
     } catch (e: Exception) {
     }
@@ -210,40 +211,40 @@ fun printStatus(res: Rescue, lCount : Int) : Int{
         terminal?.printString(name + ": ", charCount + 3, lineCount + 2, blackwhite)
         charCount += name.length + 2
 
-        if (status.friended == TRUE) terminal?.printString("FR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.MAGENTA, TextColor.ANSI.WHITE), true)
-        if (status.friended == NEUTRAL) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)}
-        if (status.friended == FALSE) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)}
+        if (status.friended == TRUE) terminal?.printString("FR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.MAGENTA, TextColor.ANSI.WHITE), true, true)
+        if (status.friended == NEUTRAL) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)}
+        if (status.friended == FALSE) {terminal?.printString("FR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)}
         charCount += 3 + 1
 
-        if (status.winged == TRUE) terminal?.printString("WR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.CYAN, TextColor.ANSI.WHITE), true)
-        if (status.winged == NEUTRAL) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
-        if (status.winged == FALSE) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
+        if (status.winged == TRUE) terminal?.printString("WR+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.CYAN, TextColor.ANSI.WHITE), true, true)
+        if (status.winged == NEUTRAL) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
+        if (status.winged == FALSE) terminal?.printString("WR-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)
         charCount += 3 + 1
 
-        if (status.beacon == TRUE) terminal?.printString("Beacon+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLUE, TextColor.ANSI.WHITE), true)
-        if (status.beacon == NEUTRAL) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
-        if (status.beacon == FALSE) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
+        if (status.beacon == TRUE) terminal?.printString("Beacon+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLUE, TextColor.ANSI.WHITE), true, true)
+        if (status.beacon == NEUTRAL) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
+        if (status.beacon == FALSE) terminal?.printString("Beacon-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)
         charCount += 7 + 1
 
-        if (status.inSys == TRUE) terminal?.printString("Sys+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.YELLOW, TextColor.ANSI.WHITE), true)
-        if (status.inSys == NEUTRAL) terminal?.printString("Sys-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.inSys == TRUE) terminal?.printString("Sys+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.YELLOW, TextColor.ANSI.WHITE), true, true)
+        if (status.inSys == NEUTRAL) terminal?.printString("Sys-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
         charCount += 4 + 1
 
-        if (status.fueled == TRUE) terminal?.printString("Fuel+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.GREEN, TextColor.ANSI.WHITE), true)
-        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.fueled == TRUE) terminal?.printString("Fuel+", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.GREEN, TextColor.ANSI.WHITE), true, true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
         charCount += 5 + 1
 
-        if (status.disconnected == TRUE) terminal?.printString("DC", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
-        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.disconnected == TRUE) terminal?.printString("DC", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
         charCount += 2 + 1
 
-        if (status.instancingP == TRUE) terminal?.printString("Inst-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
-        if (status.instancingP == NEUTRAL) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
-        if (status.instancingP == FALSE) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.GREEN), true)
+        if (status.instancingP == TRUE) terminal?.printString("Inst-", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)
+        if (status.instancingP == NEUTRAL) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
+        if (status.instancingP == FALSE) terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.GREEN), true, true)
         charCount += 5 + 1
 
-        if (status.interdicted == TRUE) terminal?.printString("INT", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true)
-        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true)
+        if (status.interdicted == TRUE) terminal?.printString("INT", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.RED, TextColor.ANSI.WHITE), true, true)
+        else terminal?.printString("", charCount + 3, lineCount + 2, Pair(TextColor.ANSI.BLACK, TextColor.ANSI.WHITE), true, true)
         charCount += 3 + 1
 
         lineCount++
