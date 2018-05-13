@@ -39,7 +39,7 @@ class Authenticator(private val twitchBaseUrl: String // Base twitch api url
 ) {
     private val listenPort: Int = 13370 // The port to listen for the authentication callback on
     val clientId: String? = secret.clientID
-    val redirectUri: URI? = URI.create("http://localhost:13370")
+    val redirectUri: URI? = URI.create("https://localhost:13370")
 
     var accessToken: String? = null
     /**

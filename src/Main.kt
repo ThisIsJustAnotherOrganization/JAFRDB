@@ -91,7 +91,7 @@ fun main(args: Array<String>) {
     }
     }
 
-    launch{inpThr.run()}
+    //launch{inpThr.run()}
     launch{
         WebSocket.instance().init()
         WebSocket.instance().request("rescues", "read")
@@ -127,9 +127,6 @@ fun checkTailer(task : TimerTask) {
 var toPrint = ArrayList<String>()
 var lastHash = -1
 
-fun updateScreen(timerTask: TimerTask) {
-    updateScreen()
-}
 fun updateScreen() {
     with(terminal!!) {
         enterPrivateMode()
@@ -139,7 +136,7 @@ fun updateScreen() {
         setCursorPosition(0, 0)
         enableSGR(SGR.BOLD)
     }
-    var linecount = 0
+    var linecount : Int
     terminal?.printString("Welcome to JAFRDB", terminal!!.terminalSize.columns / 2 - 17 /* welcome string length*/, 0)
     terminal?.printString("Cases: ", 2, 1)
     linecount = printRescues()
@@ -274,7 +271,7 @@ class Rat(name : String, status : Status = Status(""), val uuid: String){
     var status : Status by Delegates.observable(status, ::rescueChanged)
 
     fun setNameCorrectly() : Rat {
-        name.replace(" ", "_").replaceAfter("[", "")
+        name = name.replace(" ", "_").substringBefore("[")
         return this
     }
 

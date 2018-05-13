@@ -46,4 +46,4 @@ enum class Trilean{
     TRUE, FALSE, NEUTRAL;
 }
 
-fun rescueChanged(prop : Any, old : Any, new : Any) = Unit
+fun rescueChanged(prop : Any, old : Any, new : Any) = updateScreen()

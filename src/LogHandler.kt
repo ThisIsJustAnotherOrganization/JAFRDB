@@ -13,8 +13,8 @@ var LogFilefr = File(config.varMap["${entries.LogPathFr}"])
 var LogFileRc = File(config.varMap["${entries.LogPathRc}"])
 val listenfr  = listener()
 val listenrc  = rclistener()
-val tailerfr  = Tailer.create(LogFilefr, listenfr, 20, true)
-val tailerrc  = Tailer.create(LogFileRc, listenrc, 20, true)
+val tailerfr  = Tailer.create(LogFilefr, listenfr, 2000, true)
+val tailerrc  = Tailer.create(LogFileRc, listenrc, 2000, true)
 
 enum class supportedClients{hexchat, mirc, ii}
 
@@ -212,10 +212,14 @@ open class listener : TailerListenerAdapter(){
                             }
                         }
 
+                        else ->{
+                            return
+                        }
                     }
+                    updateScreen()
                 } else {
                     if (message.startsWith(config.varMap["${entries.keyword}"]!!.toUpperCase())) {
-                        return //ignore signals for now, but keep the active Code for now
+                         //ignore signals for now, but keep the active Code for now
                         //RATSIGNAL - CMDR killcrazycarl - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR test - System: COL 285 sector GM-V D2-110 (225.32 LY from Sothis) - Platform: XB - O2: OK - Language: English (en-US) (Case #1)
                         //RATSIGNAL - CMDR Condor Aybarra - System: MN-t B3-6 Alrai Sector (not in EDDB) - Platform: PC - O2: OK - Language: English (en-US) - IRC Nickname: Condor_Aybarra (Case #3)
@@ -242,10 +246,13 @@ open class listener : TailerListenerAdapter(){
 
 
                             rescues.add(Rescue(name, System(system), lang, number, platform, cr, "-1"))
+                            updateScreen()
                         }
 
                     } else {
                         message = message.toLowerCase()
+                        @Suppress("NAME_SHADOWING")
+                        val nick = nick.replaceAfter("[", "").replace("[", "")
                         if (message.contains("fr+")) {
                             getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.friended = TRUE }
                         }
@@ -262,11 +269,11 @@ open class listener : TailerListenerAdapter(){
                             getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.winged = FALSE; it.status.beacon = NEUTRAL; beep() }
                         }
 
-                        if (message.contains("beacon+") || message.contains("bc+")) {
+                        if (message.contains("beacon+") || message.contains("bc+") || message.contains("wb+")) {
                             getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = TRUE; it.status.winged = TRUE; it.status.inSys = TRUE }
                         }
 
-                        if (message.contains("beacon-") || message.contains("bc-")) {
+                        if (message.contains("beacon-") || message.contains("bc-") || message.contains("wb-")) {
                             getCase(message, nick).rats.filter { it.name == nick }.forEach { it.status.beacon = FALSE; beep() }
                         }
 
