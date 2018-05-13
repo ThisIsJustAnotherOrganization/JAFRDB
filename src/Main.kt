@@ -20,7 +20,6 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.concurrent.fixedRateTimer
 import kotlin.properties.Delegates
-import kotlin.system.exitProcess
 
 
 class KeyProcessor : KeyListener{
@@ -45,7 +44,7 @@ class windowListen : WindowAdapter(){
     override fun windowClosed(e: WindowEvent?) {
         super.windowClosed(e)
         terminal!!.exitPrivateMode()
-        exitProcess(0)
+        System.exit(0)
     }
 }
 

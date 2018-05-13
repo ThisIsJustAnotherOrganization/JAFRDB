@@ -16,7 +16,7 @@ val listenrc  = rclistener()
 val tailerfr  = Tailer.create(LogFilefr, listenfr, 2000, true)
 val tailerrc  = Tailer.create(LogFileRc, listenrc, 2000, true)
 
-enum class supportedClients{hexchat, mirc, ii}
+enum class supportedClients{hexchat, mirc, ii, adiirc}
 
 
 var frtailerStopped = false
